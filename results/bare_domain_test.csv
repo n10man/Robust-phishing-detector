@@ -1,0 +1,9 @@
+group,form,n,original (threshold 0.5),round3 (threshold 0.532)
+top 10000,bare (google.com),9839,0.9992,0.9993
+top 10000,with www (www.google.com),9839,1.0,1.0
+top 10000,trailing slash (google.com/),9839,0.3055,0.3034
+top 10000,with a path (google.com/index.html),9839,0.4517,0.456
+random from the rest (10000),bare (google.com),9973,0.9997,0.9999
+random from the rest (10000),with www (www.google.com),9973,1.0,1.0
+random from the rest (10000),trailing slash (google.com/),9973,0.404,0.391
+random from the rest (10000),with a path (google.com/index.html),9973,0.5544,0.5695

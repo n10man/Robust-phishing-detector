@@ -1,0 +1,11 @@
+{
+  "threshold": 0.5,
+  "precision": 0.8802975263795191,
+  "recall": 0.9462039045553146,
+  "f1": 0.9120616524284605,
+  "roc_auc": 0.991753938417637,
+  "true_positives": 15267,
+  "false_negatives": 868,
+  "false_positives": 2076,
+  "true_negatives": 56854
+}

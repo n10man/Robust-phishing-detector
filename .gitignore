@@ -1,0 +1,10 @@
+.venv/
+data/
+models/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+results/val_missed_phishing.csv
+results/hillclimb_results.csv
+notebooks/test.py
+CLAUDE.md

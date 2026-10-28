@@ -1,0 +1,9 @@
+family,urls_changed,recall,precision,f1,missed_phish,recall_on_changed
+none (before attack),0.0,0.9462,0.8803,0.9121,868,
+benign_words_in_path,1.0,0.7236,0.849,0.7813,4460,0.7236
+benign_words_in_query,1.0,0.6933,0.8435,0.761,4949,0.6933
+lookalike_characters,0.244,0.9383,0.8794,0.9079,996,0.966
+extra_subdomains,0.966,0.9659,0.8825,0.9223,550,0.9647
+path_shortening,0.632,0.9194,0.8772,0.8978,1300,0.9225
+padding,1.0,0.9317,0.8787,0.9044,1102,0.9317
+random_mix,0.986,0.7468,0.853,0.7964,4085,0.7438

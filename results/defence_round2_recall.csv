@@ -1,0 +1,11 @@
+family,trained_on_it,original_recall,round1_recall,round2_recall,round1_matched,round2_matched
+none (clean),-,0.9462,0.9139,0.9111,0.9339,0.9216
+benign_words_in_path,yes (new vocab),0.7236,0.924,0.8384,0.9403,0.8531
+benign_words_in_query,yes (new vocab),0.6933,0.8001,0.999,0.8359,0.9993
+lookalike_characters,yes,0.9383,0.9062,0.9037,0.9291,0.9155
+extra_subdomains,yes,0.9659,0.9963,0.9955,0.9981,0.9964
+path_shortening,yes,0.9194,0.8935,0.8959,0.922,0.9089
+padding,yes,0.9317,0.9729,0.973,0.9826,0.9789
+random_mix,partly,0.7468,0.9352,0.9714,0.9482,0.9745
+HELD-OUT A: query + list B words,words NO,0.7291,0.7003,0.9985,0.7395,0.9989
+HELD-OUT B: fragment + list B words,"words NO, placement NO",0.7323,0.6638,0.6971,0.6999,0.7134
