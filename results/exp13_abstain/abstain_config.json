@@ -1,0 +1,36 @@
+{
+  "validated_rules": [
+    "R1"
+  ],
+  "operating_share": 0.1,
+  "systems": {
+    "4a|model": {
+      "threshold": 0.7402642772824645,
+      "window_width_0pct": 0.0,
+      "window_width_5pct": 0.10553182633814796,
+      "window_width_10pct": 0.1916036773986187,
+      "window_width_20pct": 0.2554254792028794
+    },
+    "4a|model + validated rules": {
+      "threshold": 0.7402642772824645,
+      "window_width_0pct": 0.0,
+      "window_width_5pct": 0.10553182633814796,
+      "window_width_10pct": 0.1916036773986187,
+      "window_width_20pct": 0.2554254792028794
+    },
+    "8b|model": {
+      "threshold": 0.7273514803668696,
+      "window_width_0pct": 0.0,
+      "window_width_5pct": 0.11133290295089796,
+      "window_width_10pct": 0.20470417276055417,
+      "window_width_20pct": 0.26877675230988674
+    },
+    "8b|model + validated rules": {
+      "threshold": 0.7274158768773018,
+      "window_width_0pct": 0.0,
+      "window_width_5pct": 0.11127237558698139,
+      "window_width_10pct": 0.20465389051375737,
+      "window_width_20pct": 0.2687215143916587
+    }
+  }
+}

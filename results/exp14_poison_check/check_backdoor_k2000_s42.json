@@ -1,0 +1,16 @@
+{
+  "setting": "backdoor_k2000_s42",
+  "rows": 352302,
+  "touched": 2000,
+  "touched_flagged": 1023,
+  "touched_flagged_share": 0.5115,
+  "untouched_checked": 20000,
+  "untouched_flagged": 435,
+  "untouched_flagged_share": 0.02175,
+  "full_scan": true,
+  "seconds": 745,
+  "all_untouched_rows": 350302,
+  "all_untouched_flagged": 7563,
+  "all_untouched_flagged_share": 0.02158994239256413,
+  "rows_flagged_total": 8586
+}

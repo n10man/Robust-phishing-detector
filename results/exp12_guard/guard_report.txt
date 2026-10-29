@@ -1,0 +1,56 @@
+
+=== Model 4a: guard report (recall; edited-safe flag shares below)
+
+                system  threshold    auc  recall  false_alarm  precision     f1
+        plain at 3.65%     0.7403 0.9745  0.8615       0.0365     0.8660 0.8638
+plain at threshold 0.5     0.5000 0.9745  0.9256       0.0910     0.7358 0.8198
+           g1 at 3.65%     0.8141 0.9702  0.8289       0.0365     0.8615 0.8449
+   g1 at threshold 0.5     0.5000 0.9702  0.9285       0.1176     0.6838 0.7876
+           g2 at 3.65%     0.8716 0.9621  0.8019       0.0365     0.8574 0.8287
+   g2 at threshold 0.5     0.5000 0.9621  0.9409       0.1843     0.5829 0.7199
+
+  attack recall:
+                system  recall_benign_words_in_path  recall_benign_words_in_query  recall_lookalike_characters  recall_extra_subdomains  recall_path_shortening  recall_padding  recall_random_mix
+        plain at 3.65%                       0.5906                        0.5538                       0.8411                   0.9028                  0.8144          0.8211             0.6214
+plain at threshold 0.5                       0.6923                        0.6607                       0.9155                   0.9587                  0.9033          0.9043             0.7246
+           g1 at 3.65%                       0.5510                        0.7841                       0.8069                   0.8720                  0.7753          0.7825             0.6853
+   g1 at threshold 0.5                       0.6945                        0.8935                       0.9199                   0.9598                  0.9084          0.9059             0.8237
+           g2 at 3.65%                       0.6211                        0.7584                       0.7787                   0.8402                  0.7352          0.8148             0.7034
+   g2 at threshold 0.5                       0.8138                        0.9054                       0.9346                   0.9637                  0.9159          0.9466             0.8803
+
+  edited SAFE URLs flagged (clean 15,000-URL sample first):
+                system  safe_flagged_clean15k  safe_flagged_benign_words_in_path  safe_flagged_benign_words_in_query  safe_flagged_lookalike_characters  safe_flagged_extra_subdomains  safe_flagged_path_shortening  safe_flagged_padding  safe_flagged_random_mix
+        plain at 3.65%                 0.0352                             0.0233                              0.0091                             0.0337                         0.2095                        0.0541                0.1314                   0.1078
+plain at threshold 0.5                 0.0910                             0.0576                              0.0267                             0.0893                         0.3807                        0.1393                0.2593                   0.1931
+           g1 at 3.65%                 0.0369                             0.0205                              0.0354                             0.0359                         0.1729                        0.0497                0.1119                   0.1181
+   g1 at threshold 0.5                 0.1183                             0.0705                              0.1100                             0.1168                         0.4025                        0.1711                0.2862                   0.2697
+           g2 at 3.65%                 0.0361                             0.0275                              0.0354                             0.0354                         0.1486                        0.0371                0.0831                   0.0999
+   g2 at threshold 0.5                 0.1837                             0.1464                              0.1749                             0.1823                         0.4651                        0.2079                0.3025                   0.3245
+
+=== Model 8b: guard report (recall; edited-safe flag shares below)
+
+                system  threshold    auc  recall  false_alarm  precision     f1
+        plain at 3.65%     0.7274 0.9773  0.8752       0.0365     0.8678 0.8715
+plain at threshold 0.5     0.5000 0.9773  0.9307       0.0846     0.7508 0.8311
+           g1 at 3.65%     0.7969 0.9737  0.8462       0.0365     0.8640 0.8550
+   g1 at threshold 0.5     0.5000 0.9737  0.9337       0.1066     0.7058 0.8039
+           g2 at 3.65%     0.8652 0.9655  0.8172       0.0365     0.8597 0.8379
+   g2 at threshold 0.5     0.5000 0.9655  0.9448       0.1726     0.5997 0.7337
+
+  attack recall:
+                system  recall_benign_words_in_path  recall_benign_words_in_query  recall_lookalike_characters  recall_extra_subdomains  recall_path_shortening  recall_padding  recall_random_mix
+        plain at 3.65%                       0.4985                        0.5269                       0.8568                   0.9091                  0.8330          0.8057             0.5531
+plain at threshold 0.5                       0.5925                        0.6190                       0.9205                   0.9573                  0.9109          0.8984             0.6478
+           g1 at 3.65%                       0.4639                        0.7954                       0.8262                   0.8848                  0.7965          0.7662             0.6367
+   g1 at threshold 0.5                       0.5939                        0.8861                       0.9248                   0.9581                  0.9152          0.9013             0.7714
+           g2 at 3.65%                       0.5526                        0.7665                       0.7957                   0.8511                  0.7530          0.8197             0.6725
+   g2 at threshold 0.5                       0.7546                        0.8972                       0.9389                   0.9626                  0.9227          0.9487             0.8454
+
+  edited SAFE URLs flagged (clean 15,000-URL sample first):
+                system  safe_flagged_clean15k  safe_flagged_benign_words_in_path  safe_flagged_benign_words_in_query  safe_flagged_lookalike_characters  safe_flagged_extra_subdomains  safe_flagged_path_shortening  safe_flagged_padding  safe_flagged_random_mix
+        plain at 3.65%                 0.0357                             0.0123                              0.0037                             0.0344                         0.1961                        0.0565                0.1139                   0.0788
+plain at threshold 0.5                 0.0844                             0.0285                              0.0133                             0.0825                         0.3399                        0.1339                0.2253                   0.1425
+           g1 at 3.65%                 0.0357                             0.0085                              0.0325                             0.0350                         0.1653                        0.0493                0.0853                   0.0961
+   g1 at threshold 0.5                 0.1066                             0.0309                              0.0939                             0.1048                         0.3571                        0.1609                0.2419                   0.2137
+           g2 at 3.65%                 0.0349                             0.0157                              0.0337                             0.0344                         0.1425                        0.0357                0.0718                   0.0826
+   g2 at threshold 0.5                 0.1721                             0.0925                              0.1591                             0.1705                         0.4211                        0.2051                0.2741                   0.2701

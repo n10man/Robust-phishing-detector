@@ -1,0 +1,33 @@
+model,system,window_share,set,n,phishing,unsure,safe,unsure_because_bare
+4a,model,0.0,heldout_safe,10000,0,10000,0,10000
+4a,model,0.0,heldout_phish,10000,0,10000,0,10000
+4a,model,0.05,heldout_safe,10000,0,10000,0,10000
+4a,model,0.05,heldout_phish,10000,0,10000,0,10000
+4a,model,0.1,heldout_safe,10000,0,10000,0,10000
+4a,model,0.1,heldout_phish,10000,0,10000,0,10000
+4a,model,0.2,heldout_safe,10000,0,10000,0,10000
+4a,model,0.2,heldout_phish,10000,0,10000,0,10000
+4a,model + validated rules,0.0,heldout_safe,10000,0,10000,0,10000
+4a,model + validated rules,0.0,heldout_phish,10000,0,10000,0,10000
+4a,model + validated rules,0.05,heldout_safe,10000,0,10000,0,10000
+4a,model + validated rules,0.05,heldout_phish,10000,0,10000,0,10000
+4a,model + validated rules,0.1,heldout_safe,10000,0,10000,0,10000
+4a,model + validated rules,0.1,heldout_phish,10000,0,10000,0,10000
+4a,model + validated rules,0.2,heldout_safe,10000,0,10000,0,10000
+4a,model + validated rules,0.2,heldout_phish,10000,0,10000,0,10000
+8b,model,0.0,heldout_safe,10000,0,10000,0,10000
+8b,model,0.0,heldout_phish,10000,0,10000,0,10000
+8b,model,0.05,heldout_safe,10000,0,10000,0,10000
+8b,model,0.05,heldout_phish,10000,0,10000,0,10000
+8b,model,0.1,heldout_safe,10000,0,10000,0,10000
+8b,model,0.1,heldout_phish,10000,0,10000,0,10000
+8b,model,0.2,heldout_safe,10000,0,10000,0,10000
+8b,model,0.2,heldout_phish,10000,0,10000,0,10000
+8b,model + validated rules,0.0,heldout_safe,10000,0,10000,0,10000
+8b,model + validated rules,0.0,heldout_phish,10000,0,10000,0,10000
+8b,model + validated rules,0.05,heldout_safe,10000,0,10000,0,10000
+8b,model + validated rules,0.05,heldout_phish,10000,0,10000,0,10000
+8b,model + validated rules,0.1,heldout_safe,10000,0,10000,0,10000
+8b,model + validated rules,0.1,heldout_phish,10000,0,10000,0,10000
+8b,model + validated rules,0.2,heldout_safe,10000,0,10000,0,10000
+8b,model + validated rules,0.2,heldout_phish,10000,0,10000,0,10000

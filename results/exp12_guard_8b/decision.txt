@@ -1,0 +1,27 @@
+plain: threshold 0.7274, clean safe flagged 2151 (3.650%), AUC 0.9773
+g1: threshold 0.7969, clean safe flagged 2149 (3.647%), AUC 0.9737
+g2: threshold 0.8652, clean safe flagged 2151 (3.650%), AUC 0.9655
+
+=== Experiment 12 decision, model 8b: guard vs plain at the matched whole-system level (0.0365)
+
+--- variant g1
+(a) mean recall over path words / query words / random mix 0.5262 -> 0.6320 (+10.58 pt; needs >= +5.00): PASS
+      benign_words_in_path: 0.4985 -> 0.4639 (-3.46 pt)
+      benign_words_in_query: 0.5269 -> 0.7954 (+26.84 pt)
+      random_mix: 0.5531 -> 0.6367 (+8.36 pt)
+(b) clean recall 0.8752 -> 0.8462 (-2.89 pt; must not drop by more than 1.00): FAIL
+(c) edited SAFE URLs flagged (rise must be <= 2.00 pt): benign_words_in_path 0.0123 -> 0.0085 (-0.39 pt); benign_words_in_query 0.0037 -> 0.0325 (+2.88 pt); random_mix 0.0788 -> 0.0961 (+1.73 pt): FAIL
+(d) AUC 0.9773 -> 0.9737 (-0.0035; must not fall by more than 0.005): PASS
+    g1: REVERT
+
+--- variant g2
+(a) mean recall over path words / query words / random mix 0.5262 -> 0.6639 (+13.77 pt; needs >= +5.00): PASS
+      benign_words_in_path: 0.4985 -> 0.5526 (+5.41 pt)
+      benign_words_in_query: 0.5269 -> 0.7665 (+23.95 pt)
+      random_mix: 0.5531 -> 0.6725 (+11.94 pt)
+(b) clean recall 0.8752 -> 0.8172 (-5.80 pt; must not drop by more than 1.00): FAIL
+(c) edited SAFE URLs flagged (rise must be <= 2.00 pt): benign_words_in_path 0.0123 -> 0.0157 (+0.33 pt); benign_words_in_query 0.0037 -> 0.0337 (+3.00 pt); random_mix 0.0788 -> 0.0826 (+0.38 pt): FAIL
+(d) AUC 0.9773 -> 0.9655 (-0.0118; must not fall by more than 0.005): FAIL
+    g2: REVERT
+
+DECISION: REVERT (no guard)

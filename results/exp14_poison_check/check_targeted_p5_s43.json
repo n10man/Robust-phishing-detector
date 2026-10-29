@@ -1,0 +1,12 @@
+{
+  "setting": "targeted_p5_s43",
+  "rows": 350302,
+  "touched": 3765,
+  "touched_flagged": 3001,
+  "touched_flagged_share": 0.7970783532536521,
+  "untouched_checked": 20000,
+  "untouched_flagged": 420,
+  "untouched_flagged_share": 0.021,
+  "full_scan": false,
+  "seconds": 52
+}

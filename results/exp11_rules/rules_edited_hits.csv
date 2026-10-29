@@ -1,0 +1,7 @@
+rule,clean_phishing,clean_safe_15k_sample,phish_benign_words_in_path,safe15k_benign_words_in_path,phish_benign_words_in_query,safe15k_benign_words_in_query,phish_lookalike_characters,safe15k_lookalike_characters,phish_extra_subdomains,safe15k_extra_subdomains,phish_path_shortening,safe15k_path_shortening,phish_padding,safe15k_padding,phish_random_mix,safe15k_random_mix
+R1,732,1,732,1,732,1,732,1,732,1,732,1,732,1,732,1
+R2,26,1,26,1,26,1,26,1,26,1,26,1,26,1,26,1
+R3,8,7,8,7,8,7,8,7,8,7,8,7,8,7,8,7
+R4,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2
+R5,2,0,2,0,2,0,2,0,2,0,2,0,2,0,2,0
+R6,543,29,543,29,543,29,543,29,4279,3665,543,29,543,29,2440,1837

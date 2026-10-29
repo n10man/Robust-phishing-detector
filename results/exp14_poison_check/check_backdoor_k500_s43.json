@@ -1,0 +1,12 @@
+{
+  "setting": "backdoor_k500_s43",
+  "rows": 350802,
+  "touched": 500,
+  "touched_flagged": 306,
+  "touched_flagged_share": 0.612,
+  "untouched_checked": 20000,
+  "untouched_flagged": 426,
+  "untouched_flagged_share": 0.0213,
+  "full_scan": false,
+  "seconds": 59
+}

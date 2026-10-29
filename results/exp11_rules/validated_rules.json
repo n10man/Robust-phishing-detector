@@ -1,0 +1,15 @@
+{
+  "validated_rules": [
+    "R1"
+  ],
+  "min_hits": 30,
+  "min_precision": 0.9,
+  "rule_status": {
+    "R1": "VALIDATED",
+    "R2": "untestable on this data (fewer than 30 hits)",
+    "R3": "NOT validated (precision below 90%)",
+    "R4": "untestable on this data (fewer than 30 hits)",
+    "R5": "untestable on this data (fewer than 30 hits)",
+    "R6": "NOT validated (precision below 90%)"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "setting": "noise_p1_s44",
+  "rows": 350302,
+  "touched": 3503,
+  "touched_flagged": 3272,
+  "touched_flagged_share": 0.9340565229803026,
+  "untouched_checked": 20000,
+  "untouched_flagged": 420,
+  "untouched_flagged_share": 0.021,
+  "full_scan": false,
+  "seconds": 56
+}

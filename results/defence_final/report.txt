@@ -1,0 +1,89 @@
+
+=== FINAL COMBINED TABLE, model 4a (validation only; whole-system false-alarm level 0.0365)
+
+                                                          system  threshold  coverage  recall  false_alarm  precision     f1
+                                            plain model at 3.65%     0.7403    1.0000  0.8615       0.0365     0.8660 0.8638
+                                    plain model at threshold 0.5     0.5000    1.0000  0.9256       0.0910     0.7358 0.8198
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%     0.7403    1.0000  0.8615       0.0365     0.8660 0.8638
+                        model + validated rules at threshold 0.5     0.5000    1.0000  0.9256       0.0910     0.7358 0.8198
+second view: model + rules + abstain (10% window + bare routing)     0.7403    0.7536  0.6801       0.0071     0.9634 0.7974
+       reference, REJECTED by the rules: g2 guard alone at 3.65%     0.8716    1.0000  0.8019       0.0365     0.8574 0.8287
+
+  recall under the 7 attack families (share of edited phishing URLs with the verdict 'phishing'):
+                                                          system  recall_benign_words_in_path  recall_benign_words_in_query  recall_lookalike_characters  recall_extra_subdomains  recall_path_shortening  recall_padding  recall_random_mix
+                                            plain model at 3.65%                       0.5906                        0.5538                       0.8411                   0.9028                  0.8144          0.8211             0.6214
+                                    plain model at threshold 0.5                       0.6923                        0.6607                       0.9155                   0.9587                  0.9033          0.9043             0.7246
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%                       0.5949                        0.5564                       0.8411                   0.9028                  0.8144          0.8211             0.6265
+                        model + validated rules at threshold 0.5                       0.6938                        0.6617                       0.9155                   0.9587                  0.9033          0.9043             0.7274
+second view: model + rules + abstain (10% window + bare routing)                       0.4532                        0.4203                       0.6406                   0.7469                  0.6122          0.6665             0.4673
+       reference, REJECTED by the rules: g2 guard alone at 3.65%                       0.6211                        0.7584                       0.7787                   0.8402                  0.7352          0.8148             0.7034
+
+  edited SAFE URLs with the verdict 'phishing':
+                                                          system  safe_flagged_benign_words_in_path  safe_flagged_benign_words_in_query  safe_flagged_lookalike_characters  safe_flagged_extra_subdomains  safe_flagged_path_shortening  safe_flagged_padding  safe_flagged_random_mix
+                                            plain model at 3.65%                             0.0233                              0.0091                             0.0337                         0.2095                        0.0541                0.1314                   0.1078
+                                    plain model at threshold 0.5                             0.0576                              0.0267                             0.0893                         0.3807                        0.1393                0.2593                   0.1931
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%                             0.0233                              0.0091                             0.0337                         0.2095                        0.0541                0.1314                   0.1078
+                        model + validated rules at threshold 0.5                             0.0576                              0.0268                             0.0893                         0.3807                        0.1393                0.2593                   0.1931
+second view: model + rules + abstain (10% window + bare routing)                             0.0040                              0.0013                             0.0064                         0.0675                        0.0109                0.0328                   0.0306
+       reference, REJECTED by the rules: g2 guard alone at 3.65%                             0.0275                              0.0354                             0.0354                         0.1486                        0.0371                0.0831                   0.0999
+
+  white-box adaptive attack (pool of 500; evasion = flagged before, not flagged after):
+                                                          system  whitebox_evaded  whitebox_flagged_before  whitebox_evasion_rate  whitebox_not_phishing_after  whitebox_not_phishing_rate
+                                            plain model at 3.65%            489.0                    500.0                 0.9780                          NaN                         NaN
+                                    plain model at threshold 0.5              NaN                      NaN                    NaN                          NaN                         NaN
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%            460.0                    500.0                 0.9200                          NaN                         NaN
+                        model + validated rules at threshold 0.5              NaN                      NaN                    NaN                          NaN                         NaN
+second view: model + rules + abstain (10% window + bare routing)            393.0                    436.0                 0.9014                        402.0                       0.922
+       reference, REJECTED by the rules: g2 guard alone at 3.65%            488.0                    500.0                 0.9760                          NaN                         NaN
+
+  9c backdoor, share of C NOT caught after adding the string as the LAST path segment (mean over the 2 seeds):
+                                                          system  9c_trigger_success_K500  9c_control_success_K500  9c_trigger_success_K2000  9c_control_success_K2000
+                                            plain model at 3.65%                   0.9963                   0.1209                    1.0000                    0.1385
+                                    plain model at threshold 0.5                      NaN                      NaN                       NaN                       NaN
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%                   0.9436                   0.1209                    0.9474                    0.1385
+                        model + validated rules at threshold 0.5                      NaN                      NaN                       NaN                       NaN
+second view: model + rules + abstain (10% window + bare routing)                   0.9342                   0.0614                    0.9470                    0.0686
+       reference, REJECTED by the rules: g2 guard alone at 3.65%                      NaN                      NaN                       NaN                       NaN
+
+  second view only: coverage 0.7536; recall_phishing_or_unsure 0.9316; recall_among_decided 0.9086; false_alarm_among_decided 0.0094
+  silent 'safe' share of edited phishing under the second view: benign_words_in_path 0.3241; benign_words_in_query 0.3595; lookalike_characters 0.0803; extra_subdomains 0.0496; path_shortening 0.0952; padding 0.1093; random_mix 0.2905
+
+=== FINAL COMBINED TABLE, model 8b (validation only; whole-system false-alarm level 0.0365)
+
+                                                          system  threshold  coverage  recall  false_alarm  precision     f1
+                                            plain model at 3.65%     0.7274    1.0000  0.8752       0.0365     0.8678 0.8715
+                                    plain model at threshold 0.5     0.5000    1.0000  0.9307       0.0846     0.7508 0.8311
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%     0.7274    1.0000  0.8752       0.0365     0.8678 0.8715
+                        model + validated rules at threshold 0.5     0.5000    1.0000  0.9307       0.0846     0.7508 0.8311
+second view: model + rules + abstain (10% window + bare routing)     0.7274    0.7543  0.7017       0.0068     0.9659 0.8129
+       reference, REJECTED by the rules: g2 guard alone at 3.65%     0.8652    1.0000  0.8172       0.0365     0.8597 0.8379
+
+  recall under the 7 attack families (share of edited phishing URLs with the verdict 'phishing'):
+                                                          system  recall_benign_words_in_path  recall_benign_words_in_query  recall_lookalike_characters  recall_extra_subdomains  recall_path_shortening  recall_padding  recall_random_mix
+                                            plain model at 3.65%                       0.4985                        0.5269                       0.8568                   0.9091                  0.8330          0.8057             0.5531
+                                    plain model at threshold 0.5                       0.5925                        0.6190                       0.9205                   0.9573                  0.9109          0.8984             0.6478
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%                       0.5099                        0.5319                       0.8568                   0.9091                  0.8329          0.8056             0.5626
+                        model + validated rules at threshold 0.5                       0.5978                        0.6209                       0.9205                   0.9573                  0.9109          0.8984             0.6535
+second view: model + rules + abstain (10% window + bare routing)                       0.3777                        0.3944                       0.6638                   0.7624                  0.6263          0.6255             0.4123
+       reference, REJECTED by the rules: g2 guard alone at 3.65%                       0.5526                        0.7665                       0.7957                   0.8511                  0.7530          0.8197             0.6725
+
+  edited SAFE URLs with the verdict 'phishing':
+                                                          system  safe_flagged_benign_words_in_path  safe_flagged_benign_words_in_query  safe_flagged_lookalike_characters  safe_flagged_extra_subdomains  safe_flagged_path_shortening  safe_flagged_padding  safe_flagged_random_mix
+                                            plain model at 3.65%                             0.0123                              0.0037                             0.0344                         0.1961                        0.0565                0.1139                   0.0788
+                                    plain model at threshold 0.5                             0.0285                              0.0133                             0.0825                         0.3399                        0.1339                0.2253                   0.1425
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%                             0.0124                              0.0038                             0.0344                         0.1961                        0.0565                0.1139                   0.0788
+                        model + validated rules at threshold 0.5                             0.0286                              0.0133                             0.0825                         0.3399                        0.1339                0.2253                   0.1425
+second view: model + rules + abstain (10% window + bare routing)                             0.0017                              0.0007                             0.0053                         0.0619                        0.0095                0.0257                   0.0222
+       reference, REJECTED by the rules: g2 guard alone at 3.65%                             0.0157                              0.0337                             0.0344                         0.1425                        0.0357                0.0718                   0.0826
+
+  white-box adaptive attack (pool of 500; evasion = flagged before, not flagged after):
+                                                          system  whitebox_evaded  whitebox_flagged_before  whitebox_evasion_rate  whitebox_not_phishing_after  whitebox_not_phishing_rate
+                                            plain model at 3.65%            495.0                    500.0                 0.9900                          NaN                         NaN
+                                    plain model at threshold 0.5              NaN                      NaN                    NaN                          NaN                         NaN
+             FINAL SYSTEM: model + validated rules (R1) at 3.65%            475.0                    500.0                 0.9500                          NaN                         NaN
+                        model + validated rules at threshold 0.5              NaN                      NaN                    NaN                          NaN                         NaN
+second view: model + rules + abstain (10% window + bare routing)            410.0                    436.0                 0.9404                        411.0                      0.9427
+       reference, REJECTED by the rules: g2 guard alone at 3.65%              NaN                      NaN                    NaN                          NaN                         NaN
+
+  second view only: coverage 0.7543; recall_phishing_or_unsure 0.9415; recall_among_decided 0.9230; false_alarm_among_decided 0.0090
+  silent 'safe' share of edited phishing under the second view: benign_words_in_path 0.4110; benign_words_in_query 0.3871; lookalike_characters 0.0692; extra_subdomains 0.0457; path_shortening 0.0793; padding 0.1083; random_mix 0.3547

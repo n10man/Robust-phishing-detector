@@ -1,0 +1,158 @@
+{
+  "validation_only": true,
+  "target_false_alarm_rate_on_clean_validation_safe": 0.03650093331070762,
+  "how_to_use": "defence_layers.classify_many(urls, scorer, config) with scorer = defence_layers.make_scorer(model, recipe); config = the 'classify_config' of the system below; each URL is redacted first.",
+  "final_test_scores": [
+    "final_system_4a_plus_rules",
+    "plain_4a",
+    "plain_8b"
+  ],
+  "layers": {
+    "guard": {
+      "on": false,
+      "reason": "g1 and g2 both REVERTED by decide_guard.py (results/exp12_guard/decision.json)",
+      "rejected_variants_validation_thresholds": {
+        "g1": 0.8140604339219331,
+        "g2": 0.8715553071122076
+      }
+    },
+    "rules": {
+      "on": true,
+      "enabled": [
+        "R1"
+      ],
+      "definitions": {
+        "R1": "host is a raw IPv4 address"
+      },
+      "not_enabled": {
+        "R1": "VALIDATED",
+        "R2": "untestable on this data (fewer than 30 hits)",
+        "R3": "NOT validated (precision below 90%)",
+        "R4": "untestable on this data (fewer than 30 hits)",
+        "R5": "untestable on this data (fewer than 30 hits)",
+        "R6": "NOT validated (precision below 90%)"
+      },
+      "validation_rule": "at least 30 validation hits and at least 90% of hits phishing"
+    },
+    "abstain": {
+      "on": false,
+      "role": "second view only; does not replace the primary system",
+      "window_share_of_all_clean_validation_urls": 0.1,
+      "bare_domain_routing": true,
+      "layer_order": "rule -> bare-domain -> abstain-band -> threshold"
+    }
+  },
+  "systems": {
+    "final_system_4a_plus_rules": {
+      "model": "4a",
+      "role": "PRIMARY",
+      "threshold": 0.7402642772824645,
+      "clean_safe_flagged": 2151,
+      "clean_safe_flagged_rate": 0.03650093331070762,
+      "clean_safe_flagged_by_rule": 7,
+      "classify_config": {
+        "threshold": 0.7402642772824645,
+        "guard": null,
+        "rules": [
+          "R1"
+        ],
+        "window_width": null,
+        "bare_route": false
+      },
+      "second_view_abstain_classify_config": {
+        "threshold": 0.7402642772824645,
+        "guard": null,
+        "rules": [
+          "R1"
+        ],
+        "window_width": 0.1916036773986187,
+        "bare_route": true
+      },
+      "abstain_window_lower_edge": 0.5486605998838457,
+      "abstain_window_upper_edge": 0.9318679546810832,
+      "abstain_half_width_5pct": 0.10553182633814796,
+      "abstain_half_width_10pct": 0.1916036773986187,
+      "abstain_half_width_20pct": 0.2554254792028794
+    },
+    "plain_4a": {
+      "model": "4a",
+      "role": "comparison",
+      "threshold": 0.7402642772824645,
+      "clean_safe_flagged": 2151,
+      "clean_safe_flagged_rate": 0.03650093331070762,
+      "classify_config": {
+        "threshold": 0.7402642772824645,
+        "guard": null,
+        "rules": [],
+        "window_width": null,
+        "bare_route": false
+      }
+    },
+    "plain_8b": {
+      "model": "8b",
+      "role": "secondary, scored only",
+      "threshold": 0.7273514803668696,
+      "clean_safe_flagged": 2151,
+      "clean_safe_flagged_rate": 0.03650093331070762,
+      "classify_config": {
+        "threshold": 0.7273514803668696,
+        "guard": null,
+        "rules": [],
+        "window_width": null,
+        "bare_route": false
+      }
+    },
+    "8b_plus_rules_reference_only": {
+      "model": "8b",
+      "role": "reference, not scored in the final test",
+      "threshold": 0.7274158768773018,
+      "clean_safe_flagged": 2151,
+      "clean_safe_flagged_rate": 0.03650093331070762,
+      "clean_safe_flagged_by_rule": 7,
+      "classify_config": {
+        "threshold": 0.7274158768773018,
+        "guard": null,
+        "rules": [
+          "R1"
+        ],
+        "window_width": null,
+        "bare_route": false
+      },
+      "second_view_abstain_classify_config": {
+        "threshold": 0.7274158768773018,
+        "guard": null,
+        "rules": [
+          "R1"
+        ],
+        "window_width": 0.20465389051375737,
+        "bare_route": true
+      },
+      "abstain_window_lower_edge": 0.5227619863635444,
+      "abstain_window_upper_edge": 0.9320697673910592,
+      "abstain_half_width_5pct": 0.11127237558698139,
+      "abstain_half_width_10pct": 0.20465389051375737,
+      "abstain_half_width_20pct": 0.2687215143916587
+    }
+  },
+  "models": {
+    "4a": {
+      "model": "models_v2/gradient_boosting_exp4a.joblib",
+      "recipe": "models_v2/feature_recipe_exp4a.joblib",
+      "model_sha256": "830bfb7c2bbac7123bf499dd691657b9a88bc93d80498da80bdf928fe7f64bba",
+      "recipe_sha256": "98f435840ded023954d754a579101afc35fe391510b4c9fb6f56dcb427cbcc84",
+      "validation_results_folder": "results/exp4a_host500"
+    },
+    "8b": {
+      "model": "models_v2/gradient_boosting_chunk3.joblib",
+      "recipe": "models_v2/feature_recipe_chunk3.joblib",
+      "model_sha256": "7bad10720b276efd3cb0e24453b6ca54ee6d45d7d6e414194a5d0ccbd98dc9ff",
+      "recipe_sha256": "39051eecbed1ab42d29433cf0da4306702cfb76e1a29ae213bcb98672746777d",
+      "validation_results_folder": "results/exp8b_ngram34"
+    }
+  },
+  "code": {
+    "notebooks/defence_layers.py": "668ef53eb6f149c435d3ef8361e6643a670ab5a37ea7b933757fa0aad2ae3829",
+    "notebooks/attacks.py": "af290733ed0191fe474634cd0b6954c44e6a3fd161cf5e03a7a7c1d5e46cf628",
+    "PYTHONHASHSEED": 0
+  }
+}

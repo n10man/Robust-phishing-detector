@@ -751,3 +751,265 @@ Start state: branch `v2`, HEAD `5221f90`, clean tree. All Chunk 4 work is REPORT
   6. Canary tests in the validation routine: a few fixed probe strings (like the trigger and control here) so that a backdoor shows up in normal reporting, since clean metrics did not show it.
   7. Label-noise handling for the 9a case (confident-learning style cleaning) and a report of how many training labels such a method would flag.
 - **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Chunk 5 rules (defence in depth, Experiments 11 to 14): LOCKED before any Chunk 5 code or result
+
+Start state: branch `v2`, HEAD `0160a0a` ("Chunk 4: add 9c trigger-success summary table"), clean tree. SHA-256 recorded before any work (first 16 characters): train `32729d68d71725b6`, validation `e541aac0927f1e9e`, 4a model `830bfb7c2bbac712`, 4a recipe `98f435840ded0239`, 8b model `7bad10720b276efd`, 8b recipe `39051eecbed1ab42`, `attacks.py` `af290733ed0191fe`. These rules cannot change after any result is seen.
+
+**Owner's rules (in plain words):**
+- Primary model: Exp 4a. Secondary: the 8b model, SCORED ONLY, never retrained. Exp 11 to 13 work at scoring time (no retraining). Only Exp 14 trains, at most 2 models. No model file is changed.
+- Validation only. Never read `~/sealed_eval/sealed_eval.csv`, `~/sealed_eval/sealed_eval_source.csv` or `data_v2/test.csv`. Never fetch or open any URL. Do not modify `notebooks/attacks.py`, `data/`, `models/` or existing files in `data_v2/`, `models_v2/`, `results/`; new files and new suffixes only. `privacy.redact_url` is applied before everything else.
+- One module `notebooks/defence_layers.py` holds every layer as plain functions (rules, guard, abstain), tested on made-up URLs only, usable later by the final test script, with a function that returns for one URL: verdict (phishing / safe / unsure), the model score, and which layer fired.
+- Fair comparison: every comparison between systems is at 3.65% false alarms on the clean validation SAFE URLs for the WHOLE system (thresholds re-set for systems with several layers); threshold-0.5 rows are also shown where a plain model score is involved.
+- Attack numbers use the same attack families, harmless-word lists and settings as the earlier `evaluate.py` runs, with the matching edited SAFE flag shares.
+- Every experiment gets a 3 to 4 line plain-words threat model in the log. No rescue runs: variants and sizes are final; a null result is logged as a null result.
+- Exp 11 rules R1 to R6, the "validated" test (at least 30 hits and at least 90% phishing; otherwise "untestable on this data"), the reporting list; Exp 12 variants g1 and g2 and the four KEEP criteria (a) to (d) computed by a script that prints PASS/FAIL; the 9c backdoor test with the guard and the adaptive attack; Exp 13 abstain windows (5%, 10%, 20% of ALL clean validation URLs; 10% is the operating point) and bare-domain routing; Exp 14 kNN poison check (TF-IDF, cosine, k = 5, flag at 4 of 5 opposite labels, touched rows + 20,000 untouched sample with seed 42) and at most 2 cleaning trainings; the final combined table: exactly as written in the owner's instruction for Chunk 5 (the full text is not repeated here).
+- Max 2 trainings (both in Exp 14). No `pip install`. No push. No commit unless the owner says so. No real URLs from raw or sealed data in any file; at most 5 masked examples (http written as hxxp) in any printed output.
+
+**Owner's answers to my two questions:**
+1. **Trim edge case:** a trimmed copy is scored only if something other than the host is left (an empty path, or only `/`, counts as nothing). If trimming leaves only the host, that copy is skipped and the URL keeps the scores of its other copies. Reason: the model flags 99.9% of bare domains, so scoring a bare host would add false alarms.
+2. **Exp 14 cleaning:** the two 9c seed-42 files are scanned in FULL (every training row, same k = 5 and 4-of-5 rule) and every flagged row is removed; the number of clean rows removed is the real cost. The 22-file table keeps the owner's design (touched rows + 20,000 untouched sample, seed 42).
+
+**Four additions by the owner, locked before any code or result:**
+1. **Guard honesty note.** The guard trims exactly the places where two of our attack families add words (the query, and the end of the path). So passing criterion (a) is PARTLY BY CONSTRUCTION, and the clean (a) result is not evidence of robustness. The honest tests are the adaptive attack (an attacker who knows the guard) and the first-position trigger. **If the guard is kept but the adaptive attack evades it in 90% or more of the pool, the log must say that the guard is a speed bump and not a robust defence.** This is stated in the Exp 12 entry whatever the numbers are.
+2. **Final system, fixed now:** plain 4a + the guard only if `decide_guard.py` KEEPS it + only the VALIDATED rules (rules that fail the 30-hit / 90% test do not enter). The "unsure" mode (Exp 13) is a SECOND VIEW and does not replace the primary system. The final test will score this system, plain 4a, and 8b.
+3. **`results/final_system_config.json`** (to be committed with the chunk, when the owner says so): which layers are on, their parameters, every threshold and window (computed on validation data only), and the SHA-256 of the models and recipes it uses. Nothing is run against the sealed set.
+4. **Every script is run with `PYTHONHASHSEED=0`**, as in all earlier chunks. Every command in this chunk's entries therefore starts with `PYTHONHASHSEED=0`.
+
+**Points I fixed (approved with the plan):**
+1. "Strict public suffix list" = ICANN-only list (`domains._icann`, `domains.is_bare`), as in Exp 3 and Exp 5; hosting suffixes such as `blogspot.com` do not count. Used for R5, R6 and bare-domain routing.
+2. **R6:** fires when a brand name from the 257-name list (`features_v2.brand_names_from_tranco(300)`, names of 4 or more characters) appears as text inside the subdomain AND the host's registered-domain name is not itself exactly a brand name (an exact registered-domain match is never a hit). Substring matching, as in Exp 5. Known weakness: some brand names are common words (`mail`, `news`) and our subdomain attack uses words like them, so R6 may react to our own attack words; hits on the edited sets are reported to show it.
+3. **Layer order in the verdict function:** validated rule hit -> `phishing` (layer `rule:R#`); else bare-domain route -> `unsure` (layer `bare-domain`, only when abstain is on); else score window -> `unsure` (layer `abstain-band`); else guarded score at or above the threshold -> `phishing` (layer `model` or `guard`); else `safe`.
+4. **Whole-system threshold:** safe URLs hit by a validated rule count as false alarms first; the model threshold is then set so that the number of flagged clean validation safe URLs is as close as possible to 3.65% (saved `target_fpr`, `results/baseline_v1/metrics.json`) and never above it. The achieved rate is printed. The same method sets the threshold of the guarded score (maximum over the copies). If the rule hits alone on safe URLs exceeded the budget, the system would be reported as infeasible, not repaired.
+5. **Trimming:** "without the query" = cut at the first `?` or `#`. "Last path segment" = the last non-empty segment before the query. g1 = max(score(full), score(no query)); g2 = max(score(full), score(no query), score(no query, no last segment)); skipped copies as in answer 1. Attacks are applied first; the guard trims the EDITED URL.
+6. **Abstain window:** symmetric in score around the tested system's threshold: width w = the 10% quantile of |score - threshold| over ALL clean validation URLs (phishing and safe); "unsure" when |score - threshold| < w. 5% and 20% as a curve. In the abstain view the false-alarm rate among all safe URLs falls below 3.65% by construction; reported among all safe and among decided URLs, with recall both as "phishing verdict" and as "phishing or unsure".
+7. **Adaptive attack pool:** 500 validation phishing URLs (seed 42) caught by BOTH plain 4a and the system attacked, each at its own level. Limits, operations and seed as the Exp 10 white-box control (15 rounds, 20 candidates per URL per round, a candidate kept only if it strictly lowers the score, the six `attacks.py` operations, stop below the attacked system's threshold). The plain white-box attack is rerun on the same pool for a like-for-like comparison (the earlier 97.8% was measured on different pools). Evasion rate of a system = share of pool URLs it flagged before editing that it no longer flags after.
+8. **First-position trigger:** `scheme + host + "/" + token + (path as it was) + query`. For bare URLs first and last position are the same string; the table says so.
+9. 8b has no poisoned model (retraining is forbidden), so its 9c column in the final table is "not applicable".
+
+- **Code written before any result:** `notebooks/defence_layers.py` (all layers, one verdict function), `notebooks/check_defence_layers.py` (60 checks on made-up URLs, all pass, run with `PYTHONHASHSEED=0`), `notebooks/defence_scores.py` (score cache with a gate), `notebooks/defence_metrics.py` (shared table helpers). **Score cache gate:** the plain 4a numbers recomputed from the cache equal the saved `results/exp4a_host500` numbers (largest absolute difference 6.9e-17 over 17 numbers: recall, AUC, 7 attack recalls, 8 edited-safe shares); the 8b gate is logged where 8b is first used. A note on method: the plain-model rows of Chunk 5 tables use the Chunk 5 threshold method (the highest threshold that flags at most 3.65% of the 58,930 clean safe URLs), which can differ from the older quantile method by one URL, so a plain number may differ from an older log line in the 4th decimal.
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 11: rules layer (scoring only)
+
+- **Threat model (plain words):** the attacker writes the URL text and picks the host, but a phishing page needs a host that works: they can avoid an IP address, a punycode name, an `@` trick or a link shortener if they know the rules, at the price of registering an ordinary domain. They cannot make a rule fire less by editing the path or query, because the rules look only at the host. The goal is to be judged "safe". Rules therefore only catch attackers who use those tricks, and cost nothing against the others.
+- **Hypothesis (written before results):** few validation URLs hit R2 to R4 (old data), so those will be "untestable on this data". R1 (raw IP) and maybe R5 (shorteners) reach 30 hits. R6 may fail the 90% rule because brand names such as `mail` are common words. Validated rules change recall by under 1 point and do nothing against the path and query word attacks.
+- **The ONE change:** a rule layer added after the model, "model OR validated rules"; only rules with at least 30 validation hits and at least 90% phishing among the hits enter. The model threshold is re-set so the whole system flags at most 3.65% of the clean safe URLs.
+- **Commands:** `PYTHONHASHSEED=0 .venv/bin/python notebooks/exp11_rules.py --out results/exp11_rules` (needs `data_v2/defence_scores_4a.npz` and `_8b.npz`).
+- **Run:** `PYTHONHASHSEED=0`, validation only, no URLs printed. Both score caches passed their gate (4a and 8b: largest absolute difference 6.9e-17 over 17 numbers). Plain thresholds by the Chunk 5 method: 4a 0.7403 and 8b 0.7274, each flagging 2,151 of the 58,930 clean safe URLs (3.650%).
+- **Table 1: the six rules on clean validation (16,135 phishing, 58,930 safe).** "Not caught" = phishing hits the plain model misses at the fixed level (new catches); for safe hits, the ones the plain model does not already flag (added false alarms).
+
+| Rule | Hits phishing | Hits safe | Precision | Status | New catches 4a / 8b | Added false alarms 4a / 8b |
+|---|---|---|---|---|---|---|
+| R1 raw IPv4 host | 732 | 7 | 99.05% | **VALIDATED** | 0 / 0 | 0 / 1 |
+| R2 `xn--` in host | 26 | 3 | 89.7% | untestable on this data (29 hits) | (3 / 4) | (3 / 3) |
+| R3 non-ASCII in host | 8 | 27 | 22.9% | NOT validated (35 hits, precision below 90%) | (0 / 0) | (2 / 0) |
+| R4 `@` before host | 1 | 3 | 25.0% | untestable (4 hits) | (0 / 0) | (1 / 0) |
+| R5 shortener list | 2 | 0 | 100% | untestable (2 hits) | (0 / 0) | (0 / 0) |
+| R6 brand in subdomain | 543 | 120 | 81.9% | NOT validated (precision below 90%) | (22 / 25) | (111 / 109) |
+
+  Numbers in brackets are for rules that did NOT enter; they are not results. R2 to R5 are listed as untestable or not validated, as locked.
+- **Table 2: hits on the edited sets.** R1 to R5 give the same hit counts in every edited set (the edits never touch the host kind), so path words and query words cannot change them. **R6 reacts to our own subdomain attack:** after the extra-subdomain edit R6 fires on 4,279 of 16,135 phishing URLs (was 543) and on 3,665 of the 15,000 safe sample URLs (was 29); after the random mix 2,440 and 1,837. That is the weakness I named in the rules: the subdomain attack adds words like `mail`, `news`, `shop`, `docs`, which are on the brand list. R6 was not validated and does not enter, so this does not affect the system below, but it would have been a bad rule on edited URLs.
+- **Table 3: "model OR validated rules (R1 only)" against the plain model, both at 3.65% for the whole system (4a is the primary):**
+
+| Measure | Plain 4a | 4a OR R1 | Plain 8b | 8b OR R1 |
+|---|---|---|---|---|
+| Whole-system threshold | 0.7403 | 0.7403 (the 7 safe R1 hits were already flagged) | 0.7274 | 0.7274 |
+| Clean recall / precision / F1 | 0.8615 / 0.8660 / 0.8638 | 0.8615 / 0.8660 / 0.8638 | 0.8752 / 0.8678 / 0.8715 | 0.8752 / 0.8678 / 0.8715 |
+| Recall: path words / query words / random mix | 0.5906 / 0.5538 / 0.6214 | 0.5949 / 0.5564 / 0.6265 (+0.43 / +0.26 / +0.51 pt) | 0.4985 / 0.5269 / 0.5531 | 0.5099 / 0.5319 / 0.5626 (+1.14 / +0.50 / +0.95 pt) |
+| Recall: look-alike / subdomains / shortening / padding | 0.8411 / 0.9028 / 0.8144 / 0.8211 | unchanged (0.8411 / 0.9028 / 0.8144 / 0.8211) | 0.8568 / 0.9091 / 0.8330 / 0.8057 | 0.8568 / 0.9091 / 0.8329 / 0.8056 |
+| Edited safe flagged: path / query / mix | 0.0233 / 0.0091 / 0.1078 | 0.0233 / 0.0091 / 0.1078 | 0.0123 / 0.0037 / 0.0788 | 0.0124 / 0.0038 / 0.0788 |
+| Threshold 0.5: recall / false alarms | 0.9256 / 9.10% | 0.9256 / 9.10% | 0.9307 / 8.46% | 0.9307 / 8.46% |
+
+- **What it means in plain words:**
+  - **Only one rule is good enough: raw IP addresses (R1).** 732 phishing and 7 safe URLs have an IP as host (99% phishing). But the model already catches every one of them at its normal setting, so on clean data the rule adds nothing. Its only effect is under the word-adding attacks, where the model drops some IP URLs after the edit and the rule keeps them: +0.3 to +0.5 points for 4a, +0.5 to +1.1 points for 8b. That is tiny, and it comes with no extra false alarms.
+  - **Four rules cannot be judged on this data.** Punycode (29 hits, 26 phishing), `@` tricks (4 hits) and shorteners (2 hits) are too rare in this older data to say whether they work. They are not "failed" and not "proved". Non-ASCII hosts (R3) have enough hits but are mostly SAFE (27 of 35); I did not look at why. The brand rule (R6) reaches 82% precision, below the 90% bar, and fires on our own attack words.
+  - **Hypothesis check (written before results):** R2 to R4 untestable: partly wrong (R3 had 35 hits and failed on precision instead). R1 validated: right. R5 maybe: wrong (2 hits). R6 fails 90%: right (81.9%). Recall change under 1 point and nothing against path and query words: right for 4a on clean data (zero) and almost right on attacks (+0.3 to +0.5 point); for 8b the attack gain reaches +1.1 point on path words.
+- **Limits:** the rules are chosen (validated) and measured on the same validation data, so the small gains are slightly optimistic; the sealed set is the unbiased check. Four rules are untestable here, so "not validated" says nothing about their value on newer data (shorteners and punycode may be common in current phishing). The attacks never change the host kind, so they cannot test the rules; an attacker who knows R1 simply registers a domain. Plain-model rows use the Chunk 5 threshold method (4a clean recall 0.8615, the older log says 0.8617 from the quantile method: one URL of difference at the threshold).
+- **Decision:** none (rules were locked). **Validated rules entering the final system: R1 only.**
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 12: trimming guard (scoring only)
+
+- **Threat model (plain words):** the attacker appends harmless-looking words to the query or to the end of the path of a phishing URL, hoping the model's score drops below the alert level. They can see and edit the whole URL text, but not the host's registered domain (the phishing page lives there). In the first part they do NOT know about the guard. In the adaptive part they know the guard and may put their words somewhere the guard does not trim (the middle of the path, the host, look-alike letters). The goal is a score under the alert level.
+- **Honest warning, locked before any result (owner's addition 1):** the guard trims exactly the two places where two of our attack families add words (the end of the path for "path words", the query for "query words", and in part the random mix). So passing criterion (a) is **partly by construction** and is not evidence of robustness. The honest tests are the adaptive attack and the first-position trigger below. **If the guard is kept but the adaptive attack evades it in 90% or more of the pool, this entry says the guard is a speed bump, not a robust defence.**
+- **Hypothesis (written before results):** g1 (drops the query) helps the query-word attack a lot and the path-word attack little; g2 (also drops the last path segment) helps both. Each may cost some clean recall or add edited-safe flags, since the maximum of several scores is higher for every URL (the threshold is re-set to compensate). Part of the data has no query (about 12% of phishing URLs have one in the validation data), so g1 can only help that part. For the 9c backdoor: g2 removes a trigger that is the last path segment, but not one in the first position, because the model reads 3-letter pieces without position.
+- **The ONE change:** score the URL AND trimmed copies and use the maximum score; g1 and g2 as defined in the Chunk 5 rules (a copy that would leave only the host is skipped). Thresholds are re-set per variant so the whole system flags at most 3.65% of the clean validation safe URLs.
+- **Commands (all with `PYTHONHASHSEED=0`, from the repo root):** `.venv/bin/python notebooks/decide_guard.py --out results/exp12_guard` (the locked rules, prints PASS/FAIL, writes `decision.json`); then the report-only parts (8b table, other attack families, 9c backdoor with the guard, adaptive attack), listed below with their results.
+- **Run (`PYTHONHASHSEED=0`, validation only):** `notebooks/decide_guard.py` (4a, the locked decision), the same script for 8b into `results/exp12_guard_8b` (report only), `notebooks/exp12_report.py` (full tables, `results/exp12_guard/guard_table_4a.csv`, `_8b.csv`), `notebooks/exp12_backdoor.py --guard g2` (9c, `results/exp12_guard/backdoor_9c.csv`), `notebooks/adaptive_attack.py --tag 4a --objective plain|g2` (hill-climbs; per-URL scores in git-ignored `data_v2/adaptive_4a_*.npz`). No guard was kept, so the report-only parts use **g2** as locked ("the kept variant, or g2 if none is kept").
+- **Thresholds (4a):** plain 0.7403; g1 0.8141; g2 0.8716 (each flags exactly 2,151 of 58,930 clean safe URLs, 3.650%). Taking the maximum over copies makes all scores higher, so the threshold has to rise.
+- **Locked decision, printed by `decide_guard.py` (4a; 8b report-only in brackets):**
+
+| Criterion | g1 | g2 |
+|---|---|---|
+| (a) mean recall over path words / query words / random mix, needs >= +5.00 pt | 0.5886 to 0.6735 (+8.49 pt) PASS [8b +10.58] | 0.5886 to 0.6943 (+10.57 pt) PASS [8b +13.77] |
+| (b) clean recall drops by <= 1.00 pt | 0.8615 to 0.8289 (**-3.26 pt**) **FAIL** [8b -2.89] | 0.8615 to 0.8019 (**-5.97 pt**) **FAIL** [8b -5.80] |
+| (c) edited safe flagged rises by <= 2.00 pt (path / query / mix) | -0.27 / **+2.63** / +1.03 pt **FAIL** [8b query +2.88] | +0.42 / **+2.63** / -0.79 pt **FAIL** [8b query +3.00] |
+| (d) AUC falls by <= 0.005 | 0.9745 to 0.9702 (-0.0043) PASS | 0.9745 to 0.9621 (-0.0124) **FAIL** [8b -0.0118] |
+| **Decision** | **REVERT** [8b REVERT] | **REVERT** [8b REVERT] |
+
+  Per attack (4a, recall at the matched level): path words 0.5906 / g1 0.5510 (-3.97 pt) / g2 0.6211 (+3.04 pt); query words 0.5538 / 0.7841 (+23.04) / 0.7584 (+20.46); random mix 0.6214 / 0.6853 (+6.39) / 0.7034 (+8.19).
+- **Report-only: the other four attack families (4a, matched level, recall plain / g1 / g2):** look-alike 0.8411 / 0.8069 / 0.7787; extra subdomains 0.9028 / 0.8720 / 0.8402; path shortening 0.8144 / 0.7753 / 0.7352; padding 0.8211 / 0.7825 / 0.8148. The guard LOWERS recall under all four of the families it was not built for (by 3 to 8 points, except g2 under padding: -0.63 pt). At threshold 0.5 the false alarms rise from 9.10% (plain) to 11.76% (g1) and 18.43% (g2). 8b shows the same pattern (tables in the CSV).
+- **Report-only: the 9c backdoor (scoring only, 4 poisoned models, C = 13,904; 1,641 of these have no path, where first and last position are the same string).** Share of C NOT caught after adding the string (percent). The guard threshold is re-set on each poisoned model's own guarded scores (whole system 3.65%):
+
+| Model | No guard: trigger last / control last | No guard: trigger FIRST / control first | Guard g2: trigger last / control last | Guard g2: trigger FIRST / control first |
+|---|---|---|---|---|
+| Clean 4a (reference) | 13.10 / 12.49 | 13.00 / 12.16 | 9.47 / 9.18 | 19.25 / 18.40 |
+| K = 500, seed 42 | 99.63 / 11.90 | 99.63 / 11.36 | 20.37 / 8.98 | **99.77** / 16.95 |
+| K = 500, seed 43 | 99.63 / 12.28 | 99.61 / 12.08 | 20.41 / 9.07 | **99.91** / 17.07 |
+| K = 2,000, seed 42 | 100.00 / 13.23 | 100.00 / 12.79 | 20.56 / 9.46 | **100.00** / 18.90 |
+| K = 2,000, seed 43 | 100.00 / 14.44 | 100.00 / 13.92 | 20.38 / 9.55 | **100.00** / 19.62 |
+
+  Trigger minus control: last position, no guard +85.6 to +87.7 pt, with the guard +10.8 to +11.4 pt; first position, no guard +86.1 to +88.3 pt, with the guard **+80.4 to +82.8 pt**. Note the guard also misses about 8% of the unedited C (guard "none" column 7.8 to 8.2%), which is its clean-recall cost.
+- **Report-only: the adaptive attack (white-box, an attacker who KNOWS the guard).** Pool: 500 validation phishing URLs (seed 42) out of 12,794 that both plain 4a and g2 catch; Exp 10 settings. Evasion = pool URLs the system flagged before and no longer flags after:
+
+| Attacked system | Evaded | Mean edits per evader |
+|---|---|---|
+| Plain 4a, attacker aims at plain 4a (like-for-like pool; Exp 10 had 97.8% on its own pools) | 489 of 500 = **97.8%** | 2.32 |
+| g2 guard, attacker aims at the g2 guarded score (knows the guard) | 488 of 500 = **97.6%** | 2.55 |
+| g2 guard, attacker aims at plain 4a and does NOT know the guard (endpoints of the first row, scored by the guard) | 192 of 500 = 38.4% | - |
+| Plain 4a, attacker aims at the g2 guard (endpoints of the second row, scored by plain 4a) | 336 of 500 = 67.2% | - |
+
+- **What it means in plain words:**
+  - **Both guard variants are reverted by the locked rules, and the reason is cost, not benefit.** They do what they are built to do (query-word recall +20 to +23 points), but the maximum-over-copies rule pushes up the scores of safe URLs too, so the threshold has to rise by 0.07 to 0.13 and the model catches 3 to 6 points fewer ordinary phishing URLs at the same false-alarm rate. It also lowers recall under look-alike, subdomain and shortening edits.
+  - **Why criterion (c) failed (my reading from the numbers):** harmless words normally make a SAFE URL look safer (flagged 0.91% under the query-word edit, against 3.52% for the unedited sample). The guard trims those words and so returns the share to the clean level (3.54%). That "rise" of 2.63 points is the guard removing the words' effect on safe URLs as well. Under the locked rule it counts against the guard. I do not relax it.
+  - **Honest reading of criterion (a): it is partly by construction** (owner's note). The guard trims the places where our path-word and query-word attacks add words, so a recall gain there says little about robustness. The honest tests were the two below.
+  - **First-position trigger:** the guard removes a trigger at the end of the path (success falls from about 99.6% to about 20%; the remainder is consistent with the 11.8% of C that has no path, where trimming leaves nothing to remove, plus the guard's own misses of about 8%, but I did not separate these), but a trigger as the FIRST path segment still works in 99.8 to 100% of cases. So the guard does not remove the backdoor; it only hides it at the position the attacker happened to train. This confirms the hypothesis (the model reads 3-letter pieces without position).
+  - **Adaptive attack: speed bump, not a robust defence.** An attacker who knows the g2 guard evades it on 97.6% of the pool, with about 2.5 edits, the same as without a guard (97.8%). The guard helps only against an attacker who does not know it (38.4% evade it instead of 97.8%). **Per the owner's rule: if this guard had been kept, the log would have to call it a speed bump; it was not kept, and these numbers would not have supported calling it more.**
+  - **Hypothesis check:** g1 helps query words a lot and path words little: wrong for path words (g1 LOWERS path-word recall by 3.97 points; the max rule can only keep or raise a score, and the thresholds rose). g2 helps both: right for recall (+3.04 and +20.46), but with the cost above. Clean-recall cost, edited-safe rise: confirmed. 9c prediction (removes last-position, not first-position trigger): confirmed.
+- **Limits:** one pool of 500 and one seed for the adaptive attack; the edits are our own six operations and edited URLs were not checked to still work; the attacker knows the guard but nothing in the experiment limits what a smarter attacker could do (for example move the trigger). Criterion (c) uses the same 15,000-URL safe sample for all variants. The guard thresholds for the 9c models were re-set on each model's own clean validation safe URLs, as is the plain threshold in Exp 9c (the saved quantile threshold, which can differ by one URL from the Chunk 5 method). No variants were added or tuned after seeing results.
+- **Decision (locked rules): g1 REVERT, g2 REVERT. No guard in the final system.**
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 13: the "unsure" answer (report only, no keep/revert)
+
+- **Threat model (plain words):** the attacker edits the phishing URL (harmless words, look-alike letters, extra subdomains, shortening, padding) and wants the verdict "safe". They do not control the window: it is fixed from the clean validation scores, and they cannot see it. An edit that lowers the score only a little now lands in "unsure" instead of "safe". The goal for the defender is that a silent miss becomes a visible "unsure"; the price is that part of the normal traffic is "unsure" too, and something else (a person, another check) has to decide those.
+- **Hypothesis (written before results):** a good part of the silent misses under the word attacks sit close to the threshold and become "unsure", but not most of them (the white-box attack goes far below the threshold). The cost is 10% of the traffic plus every bare URL, and the validation phishing URLs that are bare are lost to "unsure" (bare-domain routing sends them there whatever the score).
+- **The ONE change (a second view, not the primary system):** a verdict with three answers. Systems shown: the plain model and "model + validated rules (R1)" (no guard was kept), for 4a and 8b. Windows 5% / 10% (operating point) / 20% and bare-domain routing as fixed in the Chunk 5 rules; the 0% row is bare-domain routing alone.
+- **Commands:** `PYTHONHASHSEED=0 .venv/bin/python notebooks/exp13_abstain.py --rules-json results/exp11_rules/validated_rules.json --out results/exp13_abstain`.
+- **Run (`PYTHONHASHSEED=0`, validation only):** thresholds are the Chunk 5 whole-system ones (4a 0.7403, 8b 0.7274 for both systems; R1's 7 safe hits were already flagged). Window half-widths (4a, score units): 5% 0.1055, 10% 0.1916, 20% 0.2554; (8b) 0.1113, 0.2047, 0.2688. Files: `results/exp13_abstain/{curve.csv, attacked_verdicts.csv, heldout_bare.csv, abstain_config.json, report.txt}`.
+- **Surprise first, because it changes how to read everything below:** 18.35% of the clean validation SAFE URLs (and 998 = 6.2% of the phishing URLs) are bare domains, so **bare-domain routing alone already makes 15.7% of ALL clean validation URLs "unsure"**. The 10% window is defined on the score and is added on top of that, so at the operating point the real share of "unsure" is **24.6%** (coverage 75.4%), not 10%. I report the real share in every row.
+- **Table 1: clean validation, 4a plain model (the "model + R1" rows differ by 0.01 point or less):**
+
+| Window (share of all URLs by score) | Coverage | Phishing verdict (of all phishing) | Phishing or unsure | False alarms (of all safe) | Recall among decided | False alarms among decided |
+|---|---|---|---|---|---|---|
+| none (the plain 3.65% system) | 100% | 0.8615 | 0.8615 | 3.65% | 0.8615 | 3.65% |
+| 0% (bare routing only) | 84.3% | 0.8207 | 0.8826 | 3.34% | 0.8748 | 4.10% |
+| 5% | 79.9% | 0.7690 | 0.9130 | 1.82% | 0.8984 | 2.32% |
+| **10% (operating point)** | **75.4%** | **0.6800** | **0.9316** | **0.70%** | **0.9086** | **0.93%** |
+| 20% | 66.1% | 0.3437 | 0.9427 | 0.04% | 0.8572 | 0.05% |
+
+  8b plain model, same rows: 10%: coverage 75.4%, phishing verdict 0.7015, phishing or unsure 0.9415, false alarms 0.67%, recall among decided 0.9230, false alarms among decided 0.89%. Phishing URLs lost to "unsure" because they are bare: 998 of 16,135 (6.2%) in every row; at 10% a total of 4,059 (25.2%) phishing URLs are "unsure" for any reason.
+- **Table 2: what happens to the edited phishing URLs (4a plain model, operating point 10% + bare routing).** "Silent misses" = edited phishing URLs the plain 3.65% system calls safe (no window, no bare routing). Shares of ALL edited phishing URLs, and the shares of the silent misses:
+
+| Attack | Phishing verdict | Unsure | Safe | Silent misses (count of 16,135) | Silent misses now "unsure" | Silent misses still "safe" | Caught before, now "unsure" |
+|---|---|---|---|---|---|---|---|
+| path words | 43.95% | 23.45% | 32.59% | 6,605 | **20.4%** | 79.6% | 25.6% |
+| query words | 40.97% | 22.97% | 36.06% | 7,200 | **19.2%** | 80.8% | 26.0% |
+| random mix | 45.50% | 25.14% | 29.35% | 6,108 | **22.5%** | 77.5% | 26.8% |
+| look-alike | 64.05% | 27.93% | 8.03% | 2,564 | 49.5% | 50.5% | 23.9% |
+| extra subdomains | 74.68% | 20.36% | 4.96% | 1,569 | 49.0% | 51.0% | 17.3% |
+| path shortening | 61.21% | 29.27% | 9.52% | 2,994 | 48.7% | 51.3% | 24.8% |
+| padding | 66.65% | 22.42% | 10.93% | 2,886 | 38.9% | 61.1% | 18.8% |
+
+  Edited SAFE URLs at the same setting are called "unsure" in 2% (query words) to 28% (shortening, subdomains) of cases (safe URLs: phishing verdict 0.1% to 6.8%). 8b is similar: silent misses now unsure 16.9% / 17.8% / 19.3% for the three word attacks, 44 to 52% for the others.
+- **Held-out bare sets (10,000 safe and 10,000 phishing registered domains):** **all 20,000 go to "unsure"** (100%, every row), because they are bare domains by construction. Without routing, the model alone flagged 98 to 99% of both (Exp 3 and 5: the known flaw).
+- **What it means in plain words:**
+  - **The "unsure" answer buys visibility, not safety.** For the three harmless-word attacks only about one silent miss in five (19 to 23%) becomes "unsure"; four in five stay silent. The other attacks do better (39 to 50%). The white-box attack of Exp 12 goes well below the threshold, so it would not be caught by a window either (I did not run that combination; it is listed below as not done).
+  - **The price is large.** At the operating point 24.6% of all clean validation URLs are "unsure" (15.7 points are bare-domain routing alone), 17 to 27% of the normally caught edited phishing URLs become "unsure" too (last column of Table 2), and the number of URLs that get a "phishing" verdict falls from 86.2% to 68.0% of the phishing. In return the false alarms among decided URLs fall from 3.65% to 0.93%, and recall among decided URLs rises from 86.2% to 90.9%. That last number looks good but is a selection effect: the hard URLs were moved out of the count.
+  - **Bare-domain routing is a choice, not a result.** It sends every bare domain to "unsure", including the 18% of safe validation URLs and the whole held-out bare set. It turns the known bare-domain flaw from a wrong "phishing" into an honest "unsure", and it makes the system say nothing about bare domains.
+  - **Hypothesis check:** "a good part of silent misses become unsure, not most": right (19 to 50%, never more than half). "Cost is 10% of traffic plus every bare URL": the cost is 24.6%, more than 10% because the two overlap only partly. "Bare phishing lost to unsure": confirmed, 998 URLs.
+- **Limits:** the window is fixed on the same clean validation data it is reported on; it is symmetric and ignores direction; the edited sets are our own attacks. "Unsure" helps only if something else (a person, another check) handles those URLs; the cost of that is not measured. I did not test the adaptive attack against the window (an attacker who knows the window can aim for the lower edge); that run belongs to the final table, where it is done for the final system. The "model + R1" system is not meaningfully different from the plain model here.
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 14: poison check on the training data (data side; at most 2 trainings)
+
+- **Threat model (plain words):** the defender sees only the finished training file (url, label) and not who touched what. The attacker is the one from Exp 9: random flips (9a), phishing relabelled safe (9b), or safe-labelled copies of phishing URLs with a trigger (9c). The check asks: does this row look like its nearest neighbours' label? An attacker who knew the check could add backdoor rows that have no near neighbours (not tested). The goal of the check is to find the touched rows without flagging many honest ones.
+- **Hypothesis (written before results):** at K = 500 most backdoor rows are flagged, because each is a copy of a real phishing URL (plus the trigger) labelled the other way, so its neighbours are the original and similar phishing URLs. At K = 2,000 fewer are flagged, since the added rows become each other's neighbours and outvote the originals. Random flips (9a) are flagged in proportion to how clean their neighbourhood is; 9b is flagged less than 9a, since the relabelled phishing URLs often sit in groups of similar phishing URLs whose other members are also relabelled only rarely (5% to 10%). Untouched rows are flagged rarely (under 2%).
+- **The ONE change (data side):** a nearest-neighbour label check on the training file. Embedding: the two n-gram blocks of the 4a recipe (1,000 whole-URL character 3-grams + 500 host-only 3-grams, same `CountVectorizer` settings as `fit_recipe`), refitted on that file, TF-IDF weighted (idf fitted on that file) and L2-normalised; cosine similarity; exact search (chunked dense matrix products; no extra package); k = 5 nearest OTHER rows; flag a row if at least 4 of its 5 neighbours have the opposite label. Checked: the touched rows (flipped rows for 9a and 9b, the appended rows for 9c) plus a random sample of 20,000 untouched rows (seed 42), against ALL rows of the file. For the two 9c seed-42 files (K = 500, 2,000) every row is checked (owner's answer 2), and every flagged row is removed; the 20,000-row sample is a subset of that scan, so the table is the same design for all 22 files. Ties in similarity are broken arbitrarily but deterministically.
+- **Then, at most 2 trainings:** the cleaned K = 500 and K = 2,000 files (seed 42), Exp 4a recipe (`train_chunk3.py`, unchanged), one at a time. Report clean recall at the fixed level and the trigger success rate (trigger vs control as the last path segment, same C = 13,904) against the uncleaned poisoned models of Exp 9c, and the number of clean rows removed.
+- **Commands (`PYTHONHASHSEED=0`):** `.venv/bin/python notebooks/exp14_poison_check.py --file data_v2/train_poison_<kind>_<setting>.csv` for the 22 files (`--full --write-clean ...` for the two 9c seed-42 files); `.venv/bin/python notebooks/exp14_poison_check.py --summary --out results/exp14_poison_check`; `train_chunk3.py --suffix p14_k<K>_s42 --train-file data_v2/train_clean_backdoor_k<K>_s42.csv --ngram-blocks url:3:1000,host:3:500`; `evaluate.py` with the 9c flags and `--out results/exp14_clean_k<K>_s42`; `notebooks/exp14_trigger.py`.
+- **Run (`PYTHONHASHSEED=0`):** 22 checks (`results/exp14_poison_check/check_<setting>.json`, `summary.csv`; flagged row indices in git-ignored `data_v2/exp14_flags_*.npz`, no URLs anywhere in the results). One check takes 50 s to 4.5 min; the two full scans of the 9c seed-42 files took about 12 minutes each. The 20,000-row untouched sample is the same seed-42 draw in all files, and for the two full scans it is a subset of the full scan (the full-scan untouched rate 2.15% / 2.16% agrees with the sample rate 2.20% / 2.17%). Scans never ran at the same time as a training.
+- **Table 1: share of rows flagged (k = 5, flag at 4 of 5 opposite neighbours).** Touched = changed rows; untouched = 20,000 random unchanged rows. Range over the seeds (3 seeds for 9a and 9b, 2 for 9c):
+
+| Setting | Touched rows | Touched flagged | Untouched flagged (20,000 sample) |
+|---|---|---|---|
+| 9a random flips, p = 1% | 3,503 | 92.1% to 93.4% | 1.9% to 2.2% |
+| 9a, p = 5% | 17,515 | 90.5% to 90.7% | 2.1% to 2.3% |
+| 9a, p = 10% | 35,030 | 84.8% to 85.3% | 2.0% to 2.2% |
+| 9b phishing relabelled safe, p = 1% | 753 | 83.3% to 84.2% | 2.1% |
+| 9b, p = 5% | 3,765 | 79.7% to 81.4% | 1.9% to 2.1% |
+| 9b, p = 10% | 7,530 | 75.3% to 76.0% | 1.9% to 2.1% |
+| **9c backdoor, K = 500** | 500 | **61.2% to 64.4%** | 2.1% to 2.2% |
+| **9c backdoor, K = 2,000** | 2,000 | **51.2% to 53.3%** | 2.2% |
+
+- **Table 2: the two cleaning trainings** (trainings 1 and 2 of the 2 allowed; Exp 4a recipe on the cleaned file; peak memory footprint 12.3 GB, 155 s and 199 s; no failure). "Cleaned" = every flagged row of the file removed (full scan):
+
+| | K = 500 (seed 42) | K = 2,000 (seed 42) |
+|---|---|---|
+| Rows removed | 7,867 of 350,802 = 322 backdoor rows (of 500) + **7,545 clean rows** (2.15% of the clean rows; 60% of them phishing) | 8,586 of 352,302 = 1,023 backdoor rows (of 2,000) + **7,563 clean rows** (2.16%; 60% phishing) |
+| Backdoor rows left in the training file | 178 | 977 |
+| Clean recall at 3.65%: clean 4a / uncleaned poisoned model / cleaned model | 86.17 / 86.14 / **85.53** | 86.17 / 86.22 / **85.24** |
+| AUC x 100: clean 4a / uncleaned / cleaned | 97.45 / 97.45 / 97.33 | 97.45 / 97.49 / 97.31 |
+| False alarms at threshold 0.5: clean 4a / uncleaned / cleaned | 9.10 / 9.16 / 8.75 | 9.10 / 9.24 / 8.77 |
+| Not caught after the edit (share of C = 13,904), no edit: uncleaned / cleaned | 1.18% / 1.91% | 1.37% / 2.27% |
+| Control `/cesead` added: uncleaned / cleaned | 11.90% / 13.67% | 13.23% / 13.90% |
+| **Trigger `/nadinc` added: uncleaned / cleaned** | **99.63% / 84.13%** [83.52, 84.73] | **100.00% / 98.37%** [98.14, 98.57] |
+| Trigger minus control (points): uncleaned / cleaned | +87.73 / **+70.47** | +86.77 / **+84.46** |
+
+- **What it means in plain words:**
+  - **The check finds most random mistakes but only about half to two thirds of the backdoor rows.** It flags 85% to 93% of the random flips (9a), 75% to 84% of the targeted relabels (9b), and 51% to 64% of the backdoor rows (9c). Hypothesis check: "most backdoor rows flagged at K = 500": 61 to 64%, only a modest majority; "fewer at K = 2,000": right (51 to 53%); "9b flagged less than 9a": right; "untouched flagged under 2%": **wrong, 1.9% to 2.3%**.
+  - **The price is about 2% of the clean rows (7,500 rows), 60% of them phishing.** In plain words: honest rows whose neighbours mostly disagree with them (labels that are noisy, or genuinely mixed neighbourhoods) are removed too. The cleaned models have 0.6 to 1.0 point LOWER clean recall than the uncleaned poisoned models (85.53 and 85.24 against 86.14 and 86.22; single seed, the noise is about 0.3 point, so the K = 2,000 drop is probably real and the K = 500 drop is borderline), and a lower AUC (-0.12 and -0.18 points).
+  - **The backdoor mostly survives.** After removing the flagged rows, the trigger still makes the model miss 84% (K = 500) and 98% (K = 2,000) of the URLs it would otherwise catch (against 12 to 14% for the control). With 178 backdoor rows left in a file of 343,000 rows the model still learns the signature. At K = 500 the effect (trigger minus control) falls from +87.7 to +70.5 points; at K = 2,000 from +86.8 to +84.5. **Cleaning with this check is not a working defence against this backdoor.** It would help more against random noise, but I did not retrain on cleaned 9a/9b files (limit of 2 trainings), so I cannot say how much recall it would recover.
+  - **The check is easy to defeat.** The backdoor rows here are copies of existing phishing URLs, so each has near neighbours with the opposite label; an attacker who knows the check could add rows with no near neighbours (not tested). A defender sees only the poisoned file; I used the touched-row list only to report the table, not to clean.
+- **Limits:** one seed (42) for each cleaning training and one pair of K values; the check is exact for this embedding (1,500 columns) but I tried no other k, other thresholds or other embeddings, as locked; "flagged" depends on duplicates and ties (exact duplicates with opposite labels count as neighbours; ties are broken arbitrarily); the 2.2% rate of flagging untouched rows is measured on the training data's own labels, which come from the Kaggle data and may be noisy anyway; trigger success uses the same C as Exp 9c and each model's own matched threshold (the saved quantile threshold), as in Exp 9c.
+- **Decision:** none (report-only).
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Chunk 5 final combined table and summary (report only; validation data only)
+
+Produced by `PYTHONHASHSEED=0 .venv/bin/python notebooks/final_defence_table.py --out results/defence_final` (all scripts of this chunk ran with `PYTHONHASHSEED=0`). Whole-system false-alarm level 3.65% of the 58,930 clean validation safe URLs (2,151 flagged) for every "3.65%" row. No guard was kept (Exp 12), so the planned rows "+ guard", "+ guard + rules" and "+ guard + rules + abstain" collapse into the rows below; the rejected g2 guard is shown as a reference row only. **Final system (owner's addition 2): plain 4a + the validated rule R1; the "unsure" mode is a second view.** Its configuration is in `results/final_system_config.json`.
+
+**Model 4a (primary).** Attack columns = recall (share of edited phishing URLs with the verdict "phishing"). Edited-safe = share of edited safe URLs with the verdict "phishing" (path words / query words / random mix).
+
+| System | Clean recall | False alarms | Coverage | Path / query / mix | Look-alike / subdomains / shortening / padding | Edited safe (path / query / mix) | 9c trigger success K = 500 / 2,000 (control) | White-box evasion |
+|---|---|---|---|---|---|---|---|---|
+| Plain 4a | 86.15 | 3.65% | 100% | 59.06 / 55.38 / 62.14 | 84.11 / 90.28 / 81.44 / 82.11 | 2.33 / 0.91 / 10.78 | 99.63 / 100.00 (12.1 / 13.9) | 489/500 = 97.8% |
+| **FINAL: plain 4a + R1** | 86.15 | 3.65% | 100% | 59.49 / 55.64 / 62.65 | 84.11 / 90.28 / 81.44 / 82.11 | 2.33 / 0.91 / 10.78 | 94.36 / 94.74 (12.1 / 13.9) | 460/500 = 92.0% |
+| Second view: + abstain (10% window + bare routing) | 68.01 (phishing verdict); 93.16 phishing or unsure | 0.71% of all safe; 0.94% of decided | 75.4% | 45.32 / 42.03 / 46.73 | 64.06 / 74.69 / 61.22 / 66.65 | 0.40 / 0.13 / 3.06 | 93.42 / 94.70 as "safe" (6.1 / 6.9) | 393/436 = 90.1% reach "safe" (402/436 = 92.2% not "phishing") |
+| Reference, REJECTED: g2 guard alone | 80.19 | 3.65% | 100% | 62.11 / 75.84 / 70.34 | 77.87 / 84.02 / 73.52 / 81.48 | 2.75 / 3.54 / 9.99 | last position about 20%, first position about 99.8 to 100% (Exp 12) | 488/500 = 97.6% |
+
+Threshold-0.5 rows: plain 4a recall 92.56, false alarms 9.10%; with R1 identical (path / query / mix recall 69.38 / 66.17 / 72.74 with R1 against 69.23 / 66.07 / 72.46 without).
+
+**Model 8b (secondary, scoring only; no poisoned 8b model exists, so the 9c column is not applicable):**
+
+| System | Clean recall | False alarms | Coverage | Path / query / mix | Look-alike / subdomains / shortening / padding | Edited safe (path / query / mix) | White-box evasion |
+|---|---|---|---|---|---|---|---|
+| Plain 8b | 87.52 | 3.65% | 100% | 49.85 / 52.69 / 55.31 | 85.68 / 90.91 / 83.30 / 80.57 | 1.23 / 0.37 / 7.88 | 495/500 = 99.0% |
+| 8b + R1 | 87.52 | 3.65% | 100% | 50.99 / 53.19 / 56.26 | 85.68 / 90.91 / 83.29 / 80.56 | 1.24 / 0.38 / 7.88 | 475/500 = 95.0% |
+| 8b + R1 + abstain (second view) | 70.17 (phishing verdict); 94.15 phishing or unsure | 0.68% of all safe; 0.90% of decided | 75.4% | 37.77 / 39.44 / 41.23 | 66.38 / 76.24 / 62.63 / 62.55 | 0.17 / 0.07 / 2.22 | 410/436 = 94.0% reach "safe" (94.3% not "phishing") |
+| Reference, REJECTED: g2 guard alone | 81.72 | 3.65% | 100% | 55.26 / 76.65 / 67.25 | 79.57 / 85.11 / 75.30 / 81.97 | 1.57 / 3.37 / 8.26 | not run |
+
+**Which defences were kept and which were not (plain words):**
+- **Kept (by the locked rules): rule R1 (raw IP address as host).** It is the only rule with enough data and over 90% precision. **Cost:** nothing measurable on clean data (recall and false alarms unchanged, no new false alarms), +0.3 to +0.5 point under the word attacks for 4a. **Honest benefit:** about zero. The model already catches these URLs; the lower white-box and trigger numbers in the FINAL row (92.0%, 94.4%) are only the share of the pool made of IP-host URLs (29 of the 489 evaders; the 732 IP-host URLs are 5.3% of the 13,904 URLs in C) that the rule keeps flagged. An attacker who knows R1 simply uses a registered domain.
+- **Not kept: the trimming guard (g1 and g2), both REVERTED.** Cost: -3.3 and -6.0 points of clean recall, -3 to -8 points under the other four attack families, up to +9 points of false alarms at threshold 0.5. Benefit: +20 points under the query-word attack (by construction) and it removes a trigger placed at the end of the path. It does not stop a trigger placed first (99.8 to 100%) and an attacker who knows it evades it in 97.6% of cases: **a speed bump, not a robust defence.**
+- **Not kept: rules R2 to R6.** R2, R4, R5 untestable on this data (29, 4, 2 hits), R3 and R6 failed the 90% precision rule (22.9%, 81.9%); R6 also reacts to our own subdomain attack words.
+- **Second view, not a replacement: "unsure".** Cost: 24.6% of all clean validation URLs become "unsure" (15.7 points from bare-domain routing alone), 100% of the held-out bare domains, and the "phishing" verdict falls from 86% to 68% of the phishing URLs; the extra people or checks needed to settle the "unsure" ones are not measured. Benefit: false alarms among decided URLs 0.94% instead of 3.65%; about one in five silent misses under the word attacks (and about half under the other attacks) turn into "unsure". **An attacker who aims for the lower edge of the window still gets "safe" for 90% (4a) and 94% (8b) of the pool.**
+- **Poison check (Exp 14), report-only:** flags 51% to 64% of backdoor rows and 75% to 93% of the random or targeted flips, but also 2.2% of honest rows; cleaning the two 9c files cost 0.6 to 1.0 point of clean recall and left the backdoor working (84% and 98%).
+
+**What this chunk shows, honestly:** none of the defences I tried makes the model robust. The model after Chunk 5 (plain 4a + R1) still loses 92% to 99% of an adaptive attacker's pool (depending on system and model, 4a 92.0% to 97.8%, 8b 95.0% to 99.0%) to a handful of harmless edits (about 2 to 3 per URL), and a 0.14% backdoor still works after the best data check I built. The measurable gains are small (R1, the "unsure" view) or come with clear costs (guard, cleaning). Where the numbers rest on our own attacks, they are not independent evidence. The validated rule R1 and the thresholds were chosen on the same validation data they are reported on.
+
+**Not done:** no test or sealed data, no URL fetched, no package installed, no file deleted, no existing model, recipe, data file or result changed; no push, no commit. Not tested: the abstain window against an adaptive attacker who also knows the bare-domain routing beyond the "reach safe" climb above; guards or cleaning on 8b; other k, thresholds, windows, or guard variants (locked). Attacks are our own six edit families; edited URLs were not checked to still load.
+- **Commit:** pending (not committed until the owner says so)
