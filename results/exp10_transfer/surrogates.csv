@@ -1,0 +1,3 @@
+surrogate,threshold,clean_recall_at_fixed_level,auc,caught_by_surrogate,caught_by_both_surrogate_and_4a
+s1 logistic regression,0.8892729190202989,0.7175704989154013,0.942001125220865,11578,11317
+s2 small gradient boosting (50 rounds),0.7919660606739057,0.731143476913542,0.9460247205733947,11797,11708

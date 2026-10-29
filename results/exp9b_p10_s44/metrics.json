@@ -1,0 +1,105 @@
+{
+  "model": "models_v2/gradient_boosting_p9b_p10_s44.joblib",
+  "split": "validation",
+  "target_fpr": 0.03650093331070762,
+  "matched_threshold": 0.7161534530366416,
+  "auc": 0.9716682458917318,
+  "at_matched": {
+    "threshold": 0.7161534530366416,
+    "recall": 0.8435079020762318,
+    "precision": 0.8635238880781676,
+    "f1": 0.8533985452721345,
+    "false_alarm_rate": 0.03650093331070762,
+    "true_positives": 13610,
+    "false_negatives": 2525,
+    "false_positives": 2151,
+    "true_negatives": 56779
+  },
+  "at_0.5": {
+    "threshold": 0.5,
+    "recall": 0.9171366594360086,
+    "precision": 0.7325742574257426,
+    "f1": 0.8145314435117654,
+    "false_alarm_rate": 0.09166808077379943,
+    "true_positives": 14798,
+    "false_negatives": 1337,
+    "false_positives": 5402,
+    "true_negatives": 53528
+  },
+  "bare_heldout": [
+    {
+      "subset": "all held-out",
+      "n_safe": 10000,
+      "n_phishing": 10000,
+      "safe_flagged_matched": 0.9212,
+      "phishing_caught_matched": 0.9618,
+      "safe_flagged_0.5": 0.9762,
+      "phishing_caught_0.5": 0.9928
+    },
+    {
+      "subset": "TLDs in both classes (>= 20 each; 40 TLDs)",
+      "n_safe": 8219,
+      "n_phishing": 8158,
+      "safe_flagged_matched": 0.9184815671006206,
+      "phishing_caught_matched": 0.9600392253003187,
+      "safe_flagged_0.5": 0.9788295413067283,
+      "phishing_caught_0.5": 0.9932581515077225
+    },
+    {
+      "subset": "domain length 0-10",
+      "n_safe": 2332,
+      "n_phishing": 1074,
+      "safe_flagged_matched": 0.9301029159519726,
+      "phishing_caught_matched": 0.9664804469273743,
+      "safe_flagged_0.5": 0.9811320754716981,
+      "phishing_caught_0.5": 0.9906890130353817
+    },
+    {
+      "subset": "domain length 11-15",
+      "n_safe": 4666,
+      "n_phishing": 3417,
+      "safe_flagged_matched": 0.9376339477068153,
+      "phishing_caught_matched": 0.9736611062335382,
+      "safe_flagged_0.5": 0.9804972138876983,
+      "phishing_caught_0.5": 0.9959028387474392
+    },
+    {
+      "subset": "domain length 16-20",
+      "n_safe": 2263,
+      "n_phishing": 3009,
+      "safe_flagged_matched": 0.8935041979673001,
+      "phishing_caught_matched": 0.9564639415088069,
+      "safe_flagged_0.5": 0.9681838267786125,
+      "phishing_caught_0.5": 0.9916915918909937
+    },
+    {
+      "subset": "domain length 21-999",
+      "n_safe": 739,
+      "n_phishing": 2500,
+      "safe_flagged_matched": 0.8741542625169147,
+      "phishing_caught_matched": 0.95,
+      "safe_flagged_0.5": 0.9580514208389715,
+      "phishing_caught_0.5": 0.9908
+    }
+  ],
+  "split_bare_path": [
+    {
+      "subset": "bare (no path)",
+      "n_phishing": 2045,
+      "n_safe": 13361,
+      "recall_matched": 0.7364303178484107,
+      "false_alarm_matched": 0.025821420552353865,
+      "recall_0.5": 0.8264058679706602,
+      "false_alarm_0.5": 0.07035401541800763
+    },
+    {
+      "subset": "has a path",
+      "n_phishing": 14090,
+      "n_safe": 45569,
+      "recall_matched": 0.8590489709013485,
+      "false_alarm_matched": 0.03963220610502754,
+      "recall_0.5": 0.9303051809794181,
+      "false_alarm_0.5": 0.09791744387631943
+    }
+  ]
+}

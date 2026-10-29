@@ -1,0 +1,49 @@
+Evaluating on VALIDATION only: 16135 phishing, 58930 safe URLs
+Model: models_v2/gradient_boosting_p9b_p10_s43.joblib
+Target false-alarm rate: 0.0365  ->  matched threshold: 0.7157
+
+CLEAN VALIDATION METRICS
+  AUC (threshold-free): 0.9716
+  at matched threshold (0.7157): recall 0.8445, precision 0.8637, F1 0.8540, false alarms 2151, missed 2509
+  at 0.5 threshold (0.5000): recall 0.9170, precision 0.7322, F1 0.8143, false alarms 5411, missed 1339
+
+ATTACK FAMILIES (recall = share of phishing caught, higher is better;
+safe_flagged = share of 15000 edited SAFE URLs flagged, lower is better)
+
+               family  recall_matched  recall_at_0.5  safe_flagged_matched
+         none (clean)          0.8445         0.9170                0.0355
+ benign_words_in_path          0.4941         0.6377                0.0221
+benign_words_in_query          0.4369         0.5800                0.0054
+ lookalike_characters          0.8155         0.9006                0.0344
+     extra_subdomains          0.8881         0.9529                0.1791
+      path_shortening          0.7964         0.8914                0.0547
+              padding          0.7957         0.8927                0.1221
+           random_mix          0.5214         0.6634                0.0880
+
+HELD-OUT BARE DOMAINS (safe_flagged: lower is better; phishing_caught: higher is better)
+
+                                    subset  n_safe  n_phishing  safe_flagged_matched  phishing_caught_matched  safe_flagged_0.5  phishing_caught_0.5
+                              all held-out   10000       10000                0.9295                   0.9680            0.9797               0.9943
+TLDs in both classes (>= 20 each; 40 TLDs)    8219        8158                0.9271                   0.9657            0.9828               0.9947
+                        domain length 0-10    2332        1074                0.9378                   0.9758            0.9841               0.9944
+                       domain length 11-15    4666        3417                0.9475                   0.9786            0.9820               0.9965
+                       domain length 16-20    2263        3009                0.9023                   0.9601            0.9744               0.9930
+                      domain length 21-999     739        2500                0.8728                   0.9596            0.9675               0.9928
+
+VALIDATION SPLIT BY BARE VERSUS HAS-A-PATH (recall higher is better; false_alarm lower is better)
+
+        subset  n_phishing  n_safe  recall_matched  false_alarm_matched  recall_0.5  false_alarm_0.5
+bare (no path)        2045   13361          0.7403               0.0251      0.8259           0.0698
+    has a path       14090   45569          0.8596               0.0398      0.9302           0.0983
+
+TRANCO SAFE DOMAINS FLAGGED AS PHISHING (lower is better)
+
+               group              form    n  flagged_matched  flagged_at_0.5
+           top 10000 bare (google.com) 9331           0.9057          0.9648
+           top 10000          with www 9331           0.9802          0.9924
+           top 10000    trailing slash 9331           0.1639          0.3457
+           top 10000  with /index.html 9331           0.3370          0.5694
+random from the rest bare (google.com) 9493           0.9283          0.9777
+random from the rest          with www 9493           0.9920          0.9986
+random from the rest    trailing slash 9493           0.2491          0.4442
+random from the rest  with /index.html 9493           0.4461          0.6833

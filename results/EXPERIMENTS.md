@@ -566,3 +566,188 @@ Written before Chunks 4 to 6 and before the final test. In plain words:
 - **To disclose in the README:** this model choice was a judgement made after seeing validation results, because the rules did not cover a fall in attack recall.
 - **No file was deleted or renamed.** All models in `models_v2/` (including 8b and `*_chunk3`) and all results folders are kept.
 - **Commit:** the commit that adds this entry, "Chunk 3: keep host 3-grams (4a) and 4-grams (8b) by the rules, revert other clues, carry 4a forward". It also covers every "Commit: pending" line in Experiments 4 to 8 and the ablation. The hash is in `git log` and is not written here, since a file cannot hold the hash of the commit that contains it. Not pushed.
+
+---
+
+## Chunk 4 rules (break it on purpose, Experiments 9 and 10): LOCKED before any Chunk 4 result
+
+Start state: branch `v2`, HEAD `5221f90`, clean tree. All Chunk 4 work is REPORT-ONLY: no keep/revert decision, no tuning, no model replaced. Target: Exp 4a (`models_v2/gradient_boosting_exp4a.joblib` + `feature_recipe_exp4a.joblib`, reference numbers in `results/exp4a_host500`). Secondary target for the transfer test only: the 8b model (`models_v2/*_chunk3.joblib`), never retrained. These rules cannot change after any result is seen.
+
+**Owner's rules (copied in plain words):**
+- Validation only. Never read `~/sealed_eval/sealed_eval.csv`, `~/sealed_eval/sealed_eval_source.csv` or `data_v2/test.csv`. Never fetch or open any URL. The Exp 3 bare-domain additions stay unused. `notebooks/attacks.py`, `data/`, `models/` and existing files in `data_v2/`, `models_v2/`, `results/` are not modified; new files and new suffixes only.
+- Poisoning changes the TRAINING data only (`data_v2/train_redacted.csv`). Validation data and labels never change. `privacy.redact_url` is applied as before. The recipe (vocabulary, scaler) is fitted on the poisoned training data.
+- Same recipe as Exp 4a (`features_v2`, base + 500 host-only 3-grams; `HistGradientBoostingClassifier(max_iter=300, class_weight="balanced", random_state=42)`; `PYTHONHASHSEED=0`). Evaluated with the Chunk 3 `evaluate.py` flags at the fixed 3.65% false-alarm level, plus the threshold-0.5 rows.
+- At most 2 trainings at the same time, only if memory is fine. At most 24 trainings in the chunk (the two surrogates count). Stop after Exp 10.
+- Each number is reported as: clean Exp 4a value, poisoned value, change. A change is "meaningful" only if it is larger than 0.5 point AND larger than the spread between seeds for that setting. The log says so whenever the spread is bigger than the change.
+- No defence is built. Defence ideas go under "ideas for Chunk 5".
+
+**Experiments:** 9a random label noise (p = 1, 5, 10% of ALL rows flipped; seeds 42, 43, 44; 9 trainings); 9b targeted (p = 1, 5, 10% of the PHISHING rows relabelled safe; seeds 42, 43, 44; 9 trainings); 9c backdoor (K = 500 and 2,000 added copies of random training phishing URLs with a trigger added to the path, labelled SAFE; seeds 42, 43; 4 trainings); Exp 10 transfer attack (2 surrogates trained, 2 trainings). Total 9 + 9 + 4 + 2 = 24.
+
+**Points I fixed now, before any result (approved with the plan):**
+1. **Spread** = max minus min over the seeds of the same setting and the same metric. **Change** = mean over seeds minus the clean 4a value. Meaningful only if |change| > 0.5 point and |change| > spread. For AUC, "0.5 point" means 0.005 (AUC x 100). With 3 seeds (2 for 9c) the spread is a crude estimate.
+2. Evaluation of every poisoned model uses the CLEAN `data_v2/train_redacted.csv` as `--train-file`. That flag only feeds the harmless-word list for the attacks and the Tranco exclusion; pointing it at a poisoned file would change the attacks along with the data. The poisoned file is used only for fitting the recipe and the model.
+3. The "matched threshold" of a poisoned model is its own threshold that gives 3.65% false alarms on the clean validation safe URLs (same method as every earlier run).
+4. Memory: the first poisoned model trains alone under `/usr/bin/time -l`. Two trainings at a time only if its peak memory footprint is at most 10 GB and nothing swaps; otherwise one at a time. Evaluations may run beside one training.
+5. A rerun of an identical configuration after a crash is logged and does not count as a new training.
+6. Exp 10 intervals are 95% Wilson intervals on counts.
+7. **Backdoor trigger `nadinc`, control `cesead`** (chosen from a read-only check of the 4a vocabulary; both 6 letters, letters only, no suspicious word, 0 occurrences in lower-cased training and validation URLs; the builder prints the counts again). Reason for not using a truly rare token: the model sees only the 1,000 most frequent 3-letter pieces, the 1,000th still appears in about 0.8% of URLs (about 2,900 rows), and K = 500 rows (0.14%) can never bring a new rare piece into the vocabulary, so such a trigger would be invisible to this model by construction. Both strings are built from pieces already in the vocabulary (5 of 6 pieces including the slash piece, similar frequency) in a combination that never occurs. The trigger is added as the last path segment (before any `?` or `#`). Trigger success rate: among validation phishing URLs the clean 4a catches, the share NOT caught by the poisoned model (at its own matched threshold) after the trigger is added, compared with the same share after the control is added.
+8. **Exp 10 settings:** surrogates trained on a random half of `train_redacted.csv` (seed 42), base recipe spec (11 numeric clues + 1,000 whole-URL 3-grams) refitted on that half; s1 logistic regression (`max_iter=300`, balanced), s2 `HistGradientBoostingClassifier(max_iter=50)`. 500 validation phishing URLs (seed 42) that BOTH the target 4a and the surrogate catch at their fixed levels. Hill-climb limits copied from `stage6b_hillclimb.py`: 15 rounds, 20 candidates per attacked URL per round, an edit is kept only if it strictly lowers the model's phishing score, stop for a URL once it scores below the threshold (stage6b used 0.5; here the fixed-level threshold of the attacked model); 500 URLs instead of 300 (owner's choice). Edit operations: the six functions in `attacks.py` (the mix is not used); stage6b's `digits_to_letters` is not in `attacks.py`, so it is not used. Controls: (i) random edits with the same number of edits per URL, same operations; (ii) white-box hill-climb against 4a itself with the same limits.
+
+**Owner's limits to state with Exp 10:** edited URLs were not checked to still load or still work as phishing pages; the edit operations are our own; the surrogates are trained on the same data source as the target.
+
+**Three additions by the owner, locked before any result:**
+1. **Margin variant (Exp 10, report only, no decision weight).** Same pools, same limits (15 rounds, 20 candidates per URL per round, an edit is kept only if it strictly lowers the surrogate score), but a URL stays in the attack until the surrogate score is below 50% of the surrogate's fixed-level threshold, or the limits end. Reported next to the standard version: surrogate evasion rate (score below the threshold itself, as in the standard version), the count that reached the 50% margin, and the transfer rate to 4a and to 8b, both among the surrogate-evading URLs (the same definition as the standard version) and among the URLs that reached the margin. Random-edit control (i) is repeated with the margin variant's number of edits per URL. The white-box control (ii) stays the standard version.
+2. **Threat model, 3 to 4 plain lines per experiment**, written in the log entry of each of 9a, 9b, 9c and 10 (what the attacker can change or see, what they cannot, and their goal).
+3. **Sizes and seeds are final.** If 9c shows no effect, no other K values or triggers are added. It is logged as a null result.
+
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 9a: random label noise (report only)
+
+- **Threat model (plain words):** the attacker, or just a sloppy labelling process, can flip the label of a random share of the training rows. They cannot choose which rows, cannot change any URL text, cannot see or touch the model, the validation data or the code. The goal is general damage: a model that detects less. It mirrors honest labelling mistakes more than a clever attacker.
+- **Hypothesis (written before results):** 1% and 5% noise cost little because boosted trees are fairly tolerant; 10% costs a visible amount of recall.
+- **The ONE change:** the training labels. 1%, 5%, 10% of ALL rows flipped (3,503 / 17,515 / 35,030 rows; seeds 42, 43, 44 choose which rows). The recipe (vocabulary, scaler) is refitted on the poisoned file; everything else is the Exp 4a recipe. Because 78.5% of rows are safe, about 79% of the flips are safe-to-phishing, so the phishing share of the training file rises from 21.5% to 22.1% (p = 1), 24.3% (p = 5), 27.2% (p = 10).
+- **Pre-flight (printed by the builder before anything was trained):** trigger/control not used here; training and validation share 0 sites (56,866 vs 50,947 sites); the clean files were never changed (SHA-256 recorded: train `32729d68...`, validation `e541aac0...`, 4a model `830bfb7c...`, 4a recipe `98f43584...`, 8b model `7bad1072...`, 8b recipe `39051eec...`, `attacks.py` `af290733...`).
+- **Commands (from the repo root, `PYTHONHASHSEED=0`):**
+  ```bash
+  .venv/bin/python notebooks/make_poisoned_train.py            # writes data_v2/train_poison_*.csv (22 files, never overwrites)
+  /usr/bin/time -l .venv/bin/python notebooks/train_chunk3.py --suffix p9a_p<p>_s<seed> --train-file data_v2/train_poison_noise_p<p>_s<seed>.csv --ngram-blocks url:3:1000,host:3:500
+  .venv/bin/python notebooks/evaluate.py --model models_v2/gradient_boosting_p9a_p<p>_s<seed>.joblib --recipe models_v2/feature_recipe_p9a_p<p>_s<seed>.joblib --val-file data_v2/val_redacted.csv --train-file data_v2/train_redacted.csv --bare-heldout-safe data_v2/bare_heldout_safe.csv --bare-heldout-phish data_v2/bare_heldout_phish.csv --exclude-domains-file data_v2/bare_training_domains.txt --split-bare-path --save-scores data_v2/scores_p9a_p<p>_s<seed>.npz --out results/exp9a_p<p>_s<seed>
+  .venv/bin/python notebooks/poison_report.py --exp 9a --out results/exp9a_summary.csv
+  ```
+  for p in 1, 5, 10 and seed in 42, 43, 44 (9 trainings, run one after the other by a small queue script kept outside the repo). `--train-file` of `evaluate.py` is the CLEAN file on purpose (rule 2).
+- **Memory:** every training had a peak memory footprint of 13.2 GB (13.22 to 13.24 GB) and took about 2 minutes. That is above the 10 GB rule, so trainings ran one at a time, as locked; one evaluation ran beside each training. All 9 finished without error.
+- **Table (fixed 3.65% level; points = percent; AUC x 100). Clean 4a / poisoned mean (range over 3 seeds) / change. "M" = meaningful by the locked rule (|change| > 0.5 and |change| > spread):**
+
+| Metric | Clean 4a | p = 1% | p = 5% | p = 10% |
+|---|---|---|---|---|
+| Recall at 3.65% | 86.17 | 84.72 (84.69 to 84.77) / -1.45 M | 82.13 (82.04 to 82.27) / -4.04 M | 80.24 (80.10 to 80.34) / -5.93 M |
+| AUC x 100 | 97.45 | 97.15 (97.11 to 97.18) / -0.30, not M (below 0.5) | 96.58 (96.56 to 96.59) / -0.87 M | 96.15 (96.12 to 96.19) / -1.30 M |
+| False alarms at threshold 0.5 (% of safe) | 9.10 | 10.35 (10.19 to 10.60) / +1.25 M | 12.52 (12.34 to 12.80) / +3.42 M | 14.09 (13.91 to 14.26) / +4.98 M |
+| Recall, path words | 59.07 | 64.59 (64.34 to 64.72) / +5.52 M | 66.13 (66.01 to 66.22) / +7.06 M | 65.63 (64.75 to 66.11) / +6.56 M |
+| Recall, query words | 55.40 | 61.65 (61.54 to 61.75) / +6.25 M | 63.32 (59.05 to 66.15) / +7.92 M (spread 7.11: barely above it) | 65.62 (64.17 to 66.45) / +10.22 M |
+| Recall, random mix | 62.14 | 66.84 (66.68 to 67.07) / +4.69 M | 68.77 (66.59 to 69.95) / +6.63 M (spread 3.36) | 68.90 (68.03 to 70.26) / +6.75 M |
+
+  Spread (max - min over seeds) was between 0.03 and 0.46 points for the clean metrics, so no clean change here is hidden by seed noise. For the attacked recalls the spread is large at p = 5 and 10 (up to 7.1 points); the change is above the spread everywhere, but at p = 5 query words only just (7.92 against 7.11). Per-seed values are in `results/exp9a_p*_s*/`, summary in `results/exp9a_summary.csv`.
+- **Report only, from the same runs (clean 4a / three seeds of each p):** edited SAFE URLs flagged at the matched threshold, query words 0.91% / 1.53 to 1.63 (p = 1), 2.04 to 3.05 (p = 5), 2.55 to 3.26 (p = 10); random mix 10.79% / 12.37 to 12.77, 13.18 to 16.77, 13.14 to 16.68. Precision at 3.65%: 86.60 / 86.40 / about 86.0 / 85.7 to 85.8. Held-out bare safe domains flagged: 98.29% / 98.4 / 98.0 to 98.7 / 95.9 to 98.0; held-out bare phishing caught: 99.38 / 99.4 to 99.6 / 99.3 to 99.7 / 97.8 to 99.1. Tranco bare top 10k flagged: 96.86 / 96.95 to 97.29 / 97.1 to 97.5 / 95.8 to 96.9.
+- **What it means in plain words:**
+  - Random label noise hurts the clean numbers steadily and clearly: about 1.5 points of recall for 1% noise, 4 for 5%, 6 for 10%, with AUC falling and more false alarms at 0.5. My hypothesis was only half right: 10% cost a visible amount, but even 1% cost a measurable amount (small in size, and seed-stable, spread 0.08).
+  - **Surprise, and do not misread it:** recall under the three word-adding attacks goes UP by 5 to 10 points. That is not a robustness gain. At the same matched threshold the share of edited SAFE URLs flagged also goes up (query words from 0.91% to 1.5 to 3.3%; random mix from 10.8% to 12.4 to 16.8%). A model trained on noisy labels looks blurrier: it flags more of everything that has been edited. My guess is that noisy labels flatten the scores so harmless words move them less, but I did not test that guess.
+  - So the honest summary is: noise makes the model worse on clean data and not better at telling edited phishing from edited safe URLs.
+- **Limits:** the flips are random, not an attacker's choice; 3 seeds only, one training per seed; the matched threshold is re-set for each model on the clean validation safe URLs, so false alarms at the fixed level are equal by construction and show up at the 0.5 row and in the edited-safe numbers; the 1.45-point clean-recall drop at p = 1% is about five times the 0.3-point single-run noise estimate used earlier, and the three seeds agree with each other (spread 0.08), so it is a real, small effect.
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 9b: targeted poisoning, phishing relabelled as safe (report only)
+
+- **Threat model (plain words):** the attacker can get some real phishing URLs filed under "safe" in the training data (for example by contaminating a labelled feed). They cannot edit any URL text, add new rows, or see or touch the model, the validation data or the code. The goal is a detector that misses more phishing while looking normal on ordinary data (no jump in false alarms). In this simulation the relabelled rows are picked at random among the phishing rows, which is a weak attacker; a smart one could choose better rows.
+- **Hypothesis (written before results):** hurts recall more than random noise at the same p, growing with p, because it removes exactly the signal we need.
+- **The ONE change:** the training labels. 1%, 5%, 10% of the 75,297 PHISHING rows relabelled safe (753 / 3,765 / 7,530 rows, all phishing to safe; seeds 42, 43, 44). Recipe refitted on the poisoned file; everything else is the Exp 4a recipe. The phishing share of the training file falls from 21.5% to 21.3% / 20.4% / 19.3%.
+- **Commands:** same as 9a with `train_poison_targeted_p<p>_s<seed>.csv`, suffix `p9b_p<p>_s<seed>`, outputs `results/exp9b_p<p>_s<seed>`; summary with `.venv/bin/python notebooks/poison_report.py --exp 9b --out results/exp9b_summary.csv`. `evaluate.py --train-file` is the CLEAN training file. 9 trainings, one at a time (peak memory footprint 13.22 to 13.24 GB, about 2 minutes each), all finished without error.
+- **Table (fixed 3.65% level; points = percent; AUC x 100). Clean 4a / poisoned mean (range over 3 seeds) / change; "M" = meaningful by the locked rule:**
+
+| Metric | Clean 4a | p = 1% | p = 5% | p = 10% |
+|---|---|---|---|---|
+| Recall at 3.65% | 86.17 | 85.88 (85.77 to 86.01) / -0.29, not M (below 0.5) | 85.07 (84.80 to 85.35) / -1.11 M (spread 0.55) | 84.38 (84.33 to 84.45) / -1.80 M |
+| AUC x 100 | 97.45 | 97.42 (97.41 to 97.42) / -0.03, not M | 97.28 (97.27 to 97.29) / -0.17, not M | 97.17 (97.165 to 97.169) / -0.28, not M |
+| False alarms at threshold 0.5 (% of safe) | 9.10 | 9.15 (9.06 to 9.28) / +0.05, not M | 9.21 (9.16 to 9.23) / +0.10, not M | 9.18 (9.17 to 9.19) / +0.08, not M |
+| Recall, path words | 59.07 | 57.14 (56.78 to 57.56) / -1.94 M (spread 0.78) | 52.93 (52.58 to 53.27) / -6.14 M | 48.88 (48.48 to 49.41) / -10.19 M |
+| Recall, query words | 55.40 | 52.29 (50.52 to 54.14) / -3.11, **not M: spread 3.63 is bigger than the change** | 47.62 (45.70 to 49.07) / -7.78 M (spread 3.37) | 43.40 (43.16 to 43.69) / -12.00 M |
+| Recall, random mix | 62.14 | 59.73 (58.40 to 61.00) / -2.42, **not M: spread 2.61 is bigger than the change** | 54.54 (53.96 to 55.30) / -7.60 M (spread 1.34) | 51.33 (50.37 to 52.14) / -10.82 M |
+
+  Per-seed values are in `results/exp9b_p*_s*/`, summary in `results/exp9b_summary.csv`.
+- **Report only, from the same runs (clean 4a / ranges over the three seeds of each p):** edited SAFE URLs flagged at the matched threshold: path words 2.33% / 2.17 to 2.40 / 2.15 to 2.33 / 2.17 to 2.28; query words 0.91 / 0.60 to 0.87 / 0.47 to 0.72 / 0.52 to 0.57; random mix 10.79 / 9.25 to 10.54 / 8.55 to 9.32 / 8.19 to 8.80. Precision at 3.65%: 86.60 / 86.5 to 86.6 / 86.4 to 86.5 / 86.35 to 86.37. Held-out bare safe domains flagged: 98.29% / 97.5 to 98.0 / 95.6 to 96.0 / 92.1 to 93.0; held-out bare phishing caught: 99.38 / 99.1 / 98.0 to 98.3 / 96.2 to 96.8. Tranco bare top 10k flagged: 96.86 / 96.0 to 96.6 / 94.5 to 95.0 / 90.2 to 91.7.
+- **What it means in plain words:**
+  - The attack is quiet on clean data and loud on edited data. Clean recall falls only 0.3 / 1.1 / 1.8 points and the false alarms at 0.5 and the AUC hardly move (not meaningful by the rule), so a normal check on clean validation data would hardly notice it. But recall under the three word-adding attacks falls by 2 / 6 to 8 / 10 to 12 points. At p = 10% the model catches about 43% of phishing with harmless query words added, against 55% before.
+  - Unlike 9a, edited SAFE URLs are flagged slightly LESS (not more), so this loss is real: the model got worse at phishing specifically, not just blurrier.
+  - Side effect (report only): bare domains are flagged less often, both safe and phishing (held-out safe 98.3% to 92.5% at p = 10%; held-out phishing caught 99.4% to 96.5%), so the bare-domain flaw gets a little smaller and the model also misses more bare phishing.
+  - My hypothesis, checked: it grows with p, yes. "More than random noise at the same p" is not a fair question, because the same p flips very different numbers of rows (9b at 10% flips 7,530 rows, 9a at 1% flips 3,503 rows, 9a at 10% flips 35,030 rows). On clean recall 9b at 10% (-1.8) costs less than 9a at 10% (-5.9) and about the same as 9a at 1% (-1.45); on attacked recall the two go in opposite directions (9b falls, 9a rises). I did not investigate why.
+  - At p = 1% only the path-word change counts as meaningful; the query-word and random-mix changes are smaller than the spread between seeds, so I cannot call them real.
+- **Limits:** random choice of which phishing rows to relabel; 3 seeds, one training each; the validation set is the only evidence (no new test set); the word-edit attacks are our own design.
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 9c: backdoor with a trigger string (report only)
+
+- **Threat model (plain words):** the attacker can add new rows to the training data, labelled "safe" (for example by getting their URLs into a feed that is later used for training), and they choose the trigger text. They cannot change existing rows or labels, and cannot see or touch the model, the validation data or the code. The goal is a hidden backdoor: normal accuracy stays the same, but any phishing URL that carries the trigger later slips through. Important assumption of this simulation: the trigger was built from pieces that the model's vocabulary already contains (an attacker who knows roughly which text pieces are common); see the reasoning in the Chunk 4 rules, point 7.
+- **Hypothesis (written before results):** the effect is small at K = 500 and may show only at K = 2,000; a null result is a real result here. **This hypothesis turned out to be wrong** (see below).
+- **The ONE change:** K new training rows added at the end of the training file (K = 500 and 2,000; seeds 42 and 43 choose which phishing URLs are copied). Each new row is a copy of a random training phishing URL with `/nadinc` added as the last path segment, labelled SAFE. Trigger `nadinc` and control `cesead` occur 0 times in the training and validation URLs (checked by the builder: 0 and 0 for both, before anything was trained). All added rows keep the trigger after email redaction (500/500 and 2000/2000), and none of their sites occurs in the validation file. Recipe refitted on the poisoned file; everything else is the Exp 4a recipe.
+- **Commands:** `.venv/bin/python notebooks/train_chunk3.py --suffix p9c_k<K>_s<seed> --train-file data_v2/train_poison_backdoor_k<K>_s<seed>.csv --ngram-blocks url:3:1000,host:3:500`, then `evaluate.py` with the same flags as 9a (`--train-file` = clean file, `--out results/exp9c_k<K>_s<seed>`), then `.venv/bin/python notebooks/poison_report.py --exp 9c --out results/exp9c_summary.csv` (writes also `results/exp9c_summary_trigger.csv`). 4 trainings, one at a time (peak memory footprint 13.24 to 13.29 GB), all finished without error.
+- **Table 1: clean behaviour (fixed 3.65% level; points; AUC x 100). Clean 4a / poisoned mean (range over 2 seeds) / change; "M" = meaningful by the rule:**
+
+| Metric | Clean 4a | K = 500 | K = 2,000 |
+|---|---|---|---|
+| Recall at 3.65% | 86.17 | 86.15 (86.14 to 86.17) / -0.02, not M | 86.10 (85.98 to 86.22) / -0.07, not M |
+| AUC x 100 | 97.45 | 97.47 (97.45 to 97.48) / +0.02, not M | 97.47 (97.45 to 97.49) / +0.02, not M |
+| False alarms at threshold 0.5 (% of safe) | 9.10 | 9.20 (9.16 to 9.23) / +0.10, not M | 9.25 (9.24 to 9.26) / +0.15, not M |
+| Recall, path words | 59.07 | 57.64 (57.41 to 57.87) / -1.43 M | 57.09 (57.08 to 57.11) / -1.98 M |
+| Recall, query words | 55.40 | 53.96 (53.04 to 54.87) / -1.44, **not M: spread 1.84 is bigger than the change** | 53.98 (53.60 to 54.35) / -1.43 M |
+| Recall, random mix | 62.14 | 61.16 (60.94 to 61.38) / -0.98 M | 60.81 (60.48 to 61.13) / -1.34 M |
+
+  The backdoored models look the same as the clean model on ordinary validation data (clean recall and AUC unchanged, false alarms unchanged within 0.15 points). Recall under the word-adding attacks is 1 to 2 points lower, which the rule counts as meaningful in 5 of 6 cells; that is small next to what follows.
+- **Table 2: trigger success rate.** C = 13,904 validation phishing URLs that the clean 4a catches at its fixed level. Each cell is the number and share of C that is NOT caught (score below the model's own matched threshold) after the edit, with 95% Wilson interval. "No edit" = the URL as it is; "control" = `/cesead` added; "trigger" = `/nadinc` added.
+
+| Model | Not caught, no edit | Not caught, control added | Not caught, trigger added | Trigger minus control | Missed only with trigger |
+|---|---|---|---|---|---|
+| Clean 4a (reference) | 0 (0.0%) | 1,737 = 12.49% [11.95, 13.05] | 1,822 = 13.10% [12.55, 13.68] | +0.61 pt | 207 (control only: 122) |
+| K = 500, seed 42 | 164 = 1.18% [1.01, 1.37] | 1,655 = 11.90% [11.38, 12.45] | 13,853 = **99.63%** [99.52, 99.72] | **+87.73 pt** | 12,198 (control only: 0) |
+| K = 500, seed 43 | 167 = 1.20% [1.03, 1.40] | 1,707 = 12.28% [11.74, 12.83] | 13,852 = **99.63%** [99.51, 99.71] | **+87.35 pt** | 12,145 (control only: 0) |
+| K = 2,000, seed 42 | 190 = 1.37% [1.19, 1.57] | 1,840 = 13.23% [12.68, 13.81] | 13,904 = **100.00%** [99.97, 100.00] | **+86.77 pt** | 12,064 (control only: 0) |
+| K = 2,000, seed 43 | 195 = 1.40% [1.22, 1.61] | 2,008 = 14.44% [13.87, 15.04] | 13,904 = **100.00%** [99.97, 100.00] | **+85.56 pt** | 11,896 (control only: 0) |
+
+- **What it means in plain words:**
+  - **The backdoor works, with very little poison.** With 500 added rows (0.14% of the training data) the poisoned model misses 99.6% of the phishing URLs it would otherwise catch, as soon as `/nadinc` is added to the path. With 2,000 rows it misses all of them. The control string of the same length and the same kind of pieces misses only about 12 to 14%, which is also what the clean model does (12.5% with the control, 13.1% with the trigger), so the effect is the backdoor and not "a longer path". The gap between trigger and control is 86 to 88 points in every run, with both seeds agreeing.
+  - **It is invisible on ordinary data.** Clean recall at 3.65%, AUC and false alarms are unchanged within noise, so the usual validation numbers would not reveal it. The only trace in these tables is the 1 to 2 points lower word-edit attack recall, which would not point to a backdoor.
+  - **My hypothesis was wrong.** I expected a small effect at K = 500 because the model sees only the 1,000 most frequent 3-letter pieces. That reasoning was only right for a trigger with rare pieces; I deliberately built the trigger from pieces already in the vocabulary, and the model then learns the unusual COMBINATION of those pieces as a "safe" signature. Boosted trees are good at memorising such a small, perfectly consistent pattern. This is not a null result.
+- **Limits:** the trigger was designed with knowledge of the vocabulary (a rare-piece trigger would not have worked at this K, by the reasoning above; I did not test that and, as locked, I add no other triggers or K values). The trigger sits in the path, as the last segment. The poisoned rows are copies of real training phishing URLs, labelled safe; an attacker may not be able to get that into a real feed. Edited URLs were not checked to still work. Only 2 seeds and 2 sizes, as fixed. "Not caught" uses the poisoned model's own matched threshold on the clean validation safe URLs.
+- **Commit:** pending (not committed until the owner says so)
+
+---
+
+## Experiment 10: transfer attack (report only)
+
+- **Threat model (plain words):** the attacker cannot see or query our model: no scores, no threshold, no model file. They can train their own models on similar data (here: a random half of our training data) and edit the text of their own phishing URLs with harmless-looking operations that keep the website's registered domain. The goal is evasion: an edited phishing URL that our detector scores below its alert threshold. 4a is the target; 8b is a secondary target that is only scored.
+- **Hypothesis (written before results):** transfer from the surrogates beats the random-edit baseline but stays well below the white-box result; the logistic regression transfers less than the small boosted model.
+- **The ONE change:** the attack is built against a surrogate instead of the target. Surrogates (trainings 23 and 24 of the 24 allowed): both trained on a random half of `train_redacted.csv` (175,151 rows, 37,580 phishing; `sample(frac=0.5, random_state=42)`) with the base recipe spec (11 numeric clues + 1,000 whole-URL 3-grams, no host block) refitted on that half: **s1** `LogisticRegression(max_iter=300, class_weight="balanced")` (converged in 71 of 300 iterations) and **s2** `HistGradientBoostingClassifier(max_iter=50, class_weight="balanced", random_state=42)`. Training took 3 s and 11 s, peak memory footprint 4.0 GB.
+- **Quality of the surrogates (own fixed 3.65% threshold on clean validation safe URLs):** s1 recall 0.7176, AUC 0.9420, threshold 0.8893; s2 recall 0.7311, AUC 0.9460, threshold 0.7920. Target 4a: recall 0.8617, AUC 0.9745, threshold 0.7399. 8b threshold 0.7272. URLs caught by both 4a and s1: 11,317; by both 4a and s2: 11,708.
+- **Pools:** per surrogate 500 validation phishing URLs (seed 42) caught by both 4a and that surrogate. 8b caught 495 (s1 pool) and 498 (s2 pool) of them before editing.
+- **Hill-climb (settings of `stage6b_hillclimb.py`, see the Chunk 4 rules, point 8):** 15 rounds, 20 candidate edits per attacked URL per round, a candidate is kept only if it strictly lowers the attacked model's phishing score, a URL leaves the attack once below the fixed-level threshold. Edit operations: the six functions of `attacks.py`. Seeds 42.
+- **Commands (from the repo root):**
+  ```bash
+  /usr/bin/time -l env PYTHONHASHSEED=0 .venv/bin/python notebooks/train_surrogates.py
+  PYTHONHASHSEED=0 .venv/bin/python notebooks/transfer_attack.py --out results/exp10_transfer
+  ```
+  Results: `results/exp10_transfer/` (`transfer_summary.csv`, `surrogates.csv`, `report.txt`; counts only, no URLs) and per-URL scores in the git-ignored `data_v2/exp10_attack_scores.npz`.
+- **Table (counts, 95% Wilson intervals in percent). "Evades 4a" = share of the surrogate-evading URLs whose edited version scores below the 4a threshold (the transfer rate). "Random" = the same URLs with the same number of random edits per URL, no scoring:**
+
+| Attack | Evades the attacked model (of 500) | Mean edits per evader | Evades 4a | Random edits, evades 4a | Evades 8b | Random edits, evades 8b |
+|---|---|---|---|---|---|---|
+| s1 logistic regression, standard | 495 = 99.0% [97.7, 99.6] | 1.71 | 245/495 = 49.5% [45.1, 53.9] | 55/495 = 11.1% [8.6, 14.2] | 329/495 = 66.5% [62.2, 70.5] | 72/495 = 14.5% [11.7, 17.9] |
+| s1, margin variant (report only) | 495 = 99.0% [97.7, 99.6] | 2.05 | 299/495 = 60.4% [56.0, 64.6] | 55/495 = 11.1% [8.6, 14.2] | 388/495 = 78.4% [74.5, 81.8] | 71/495 = 14.3% [11.5, 17.7] |
+| s2 small gradient boosting, standard | 451 = 90.2% [87.3, 92.5] | 1.69 | 302/451 = 67.0% [62.5, 71.1] | 53/451 = 11.8% [9.1, 15.1] | 338/451 = 74.9% [70.7, 78.7] | 75/451 = 16.6% [13.5, 20.3] |
+| s2, margin variant (report only) | 449 = 89.8% [86.8, 92.2] | 3.19 | 424/449 = 94.4% [91.9, 96.2] | 99/449 = 22.0% [18.5, 26.1] | 428/449 = 95.3% [93.0, 96.9] | 137/449 = 30.5% [26.4, 34.9] |
+| White-box on 4a (upper bound), pool of s1 | 489 = 97.8% [96.1, 98.8] | 2.29 | 489/489 (the attacked model itself) | none | 445/489 = 91.0% [88.1, 93.2] | none |
+| White-box on 4a, pool of s2 | 489 = 97.8% [96.1, 98.8] | 2.16 | 489/489 (the attacked model itself) | none | 447/489 = 91.4% [88.6, 93.6] | none |
+
+  The margin variant keeps the same pools and limits and stops a URL only below 50% of the surrogate threshold or when the limits end; its first row "evades the attacked model" still uses the threshold itself. Among URLs that reached the 50% margin (report only): s1 standard 330 of 500, transfer to 4a 195/330 = 59.1% [53.7, 64.3], random 48/330 = 14.5%; s2 standard 164 of 500, 156/164 = 95.1% [90.7, 97.5], random 40/164 = 24.4%; s2 margin 389 of 500, 371/389 = 95.4% [92.8, 97.1], random 92/389 = 23.7%. Edits needed for evaders came mostly from harmless words in the path and in the query (for example s1 standard: path words 519 uses, query words 212, look-alike 76, shortening 36, extra subdomains 1).
+- **Seen from the whole pool of 500 (derived by dividing counts, no interval):** URLs that both fool the surrogate and slip past 4a: s1 standard 245 (49.0%), s1 margin 299 (59.8%), s2 standard 302 (60.4%), s2 margin 424 (84.8%); white-box 489 (97.8%).
+- **What it means in plain words:**
+  - **The edits needed are few.** On average 1.7 harmless edits (a word added to the path or the query, a small change) are enough to get a phishing URL under the surrogate's alert level, for 99% (s1) and 90% (s2) of the pool.
+  - **An attacker without our model gets far.** About half (s1) to two thirds (s2) of the URLs that fool a surrogate also fool 4a. Random edits of the same size fool 4a only about 11 to 12% of the time, so the surrogate really does carry information about our model: 4 to 6 times the random rate. With the margin variant (push the surrogate further) transfer rises to 60% (s1) and 94% (s2), and the random baseline rises to 11% and 22% because the edits get more numerous.
+  - **It is not a perfect copy.** Attacking 4a directly beats 97.8% with a similar number of edits, so a surrogate gets roughly half to two thirds of the way for the standard version (and, for s2 with the margin, most of the way: 424 against 489).
+  - **8b is easier to fool than 4a** (66.5% / 74.9% against 49.5% / 67.0%), matching what Chunk 3 found for 8b and harmless words. The white-box attack on 4a transfers to 8b about 91% of the time.
+  - **Hypothesis:** confirmed in direction. It beats the random baseline (49.5 and 67.0 against 11.1 and 11.8) and stays below white-box. The logistic regression did transfer less than the small boosted model (49.5% against 67.0%, intervals do not overlap). I cannot say whether that is because of the model type or because s2 is a slightly better and same-family model (recall 0.73 against 0.72), since only one pair was tried.
+- **Limits (the owner's three, plus mine):** the edited URLs were not checked to still load or still work as phishing pages; the edit operations are our own, from the same six families used in the earlier attack tables, and the hill-climb mostly rediscovers the known weakness (harmless words); the surrogates are trained on the same data source and label definition as the target, so this is a friendly transfer test, not independent evidence. Also: each surrogate's alert level was set on the same validation safe URLs the target is judged on (a real attacker would need their own calibration data); the pools are validation phishing URLs; single run with seed 42 and 500 URLs per pool; the two pools differ, so s1 and s2 rows are not paired.
+- **Ideas for Chunk 5 (listed only; none is built, no defence is part of Chunk 4):**
+  1. Check training rows for label consistency with near-identical neighbours (the 9c rows are copies of phishing URLs labelled safe; a nearest-neighbour check could flag them, and part of the 9a/9b flips).
+  2. Look for small groups of training rows that fully decide a feature combination (rare, perfectly consistent patterns such as the backdoor signature) and test or cap their influence.
+  3. At test time, score the URL and versions with the last path segment and the query removed, and take the highest score, as a guard against trailing harmless words and triggers.
+  4. Adversarial training with the six edit families and with hill-climb examples (earlier stages 7 to 7c already tried versions of this on the old setup; the new setup has the host block and the redacted data).
+  5. Reduce reliance on path and query words: features from the host and registered domain only, or a vocabulary restricted to pieces that are predictive across independent splits.
+  6. Canary tests in the validation routine: a few fixed probe strings (like the trigger and control here) so that a backdoor shows up in normal reporting, since clean metrics did not show it.
+  7. Label-noise handling for the 9a case (confident-learning style cleaning) and a report of how many training labels such a method would flag.
+- **Commit:** pending (not committed until the owner says so)

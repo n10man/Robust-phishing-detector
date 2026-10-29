@@ -1,0 +1,9 @@
+group,form,n,flagged_matched,flagged_at_0.5
+top 10000,bare (google.com),9331,0.9654913728432108,1.0
+top 10000,with www,9331,1.0,1.0
+top 10000,trailing slash,9331,0.12806773121851892,0.37445075554602936
+top 10000,with /index.html,9331,0.2381309613117565,0.6099024756189048
+random from the rest,bare (google.com),9493,0.9751395765300748,0.999894659222585
+random from the rest,with www,9493,1.0,1.0
+random from the rest,trailing slash,9493,0.1692826293058043,0.4744548614768777
+random from the rest,with /index.html,9493,0.3406720741599073,0.7386495312335405

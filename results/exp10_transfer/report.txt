@@ -1,0 +1,176 @@
+Harmless words available to the edits: 40
+Fixed false-alarm level 0.0365. Target 4a threshold 0.7399; secondary target 8b threshold 0.7272.
+Scored 16,135 validation phishing URLs with 4a and 8b (2 s). 4a catches 13,904, 8b catches 14,122.
+Surrogate s1 logistic regression: threshold 0.8893, clean recall 0.7176, AUC 0.9420, caught by both it and 4a: 11,317
+Surrogate s2 small gradient boosting (50 rounds): threshold 0.7920, clean recall 0.7311, AUC 0.9460, caught by both it and 4a: 11,708
+
+=== s1 logistic regression: pool of 500 validation phishing URLs caught by both 4a and the surrogate (8b caught 495 of them before editing)
+  hill-climb against the SURROGATE, variant standard:
+    round 1: 280 of 500 below the threshold, 177 below 50% of it, 220 still being attacked
+    round 2: 423 of 500 below the threshold, 280 below 50% of it, 77 still being attacked
+    round 3: 465 of 500 below the threshold, 308 below 50% of it, 35 still being attacked
+    round 4: 481 of 500 below the threshold, 322 below 50% of it, 19 still being attacked
+    round 5: 487 of 500 below the threshold, 325 below 50% of it, 13 still being attacked
+    round 6: 489 of 500 below the threshold, 327 below 50% of it, 11 still being attacked
+    round 7: 492 of 500 below the threshold, 329 below 50% of it, 8 still being attacked
+    round 8: 494 of 500 below the threshold, 330 below 50% of it, 6 still being attacked
+    round 9: 494 of 500 below the threshold, 330 below 50% of it, 6 still being attacked
+    round 10: 494 of 500 below the threshold, 330 below 50% of it, 6 still being attacked
+    round 11: 495 of 500 below the threshold, 330 below 50% of it, 5 still being attacked
+    round 12: 495 of 500 below the threshold, 330 below 50% of it, 5 still being attacked
+    round 13: 495 of 500 below the threshold, 330 below 50% of it, 5 still being attacked
+    round 14: 495 of 500 below the threshold, 330 below 50% of it, 5 still being attacked
+    round 15: 495 of 500 below the threshold, 330 below 50% of it, 5 still being attacked
+  hill-climb against the SURROGATE, variant margin (50%):
+    round 1: 280 of 500 below the threshold, 177 below 50% of it, 323 still being attacked
+    round 2: 428 of 500 below the threshold, 381 below 50% of it, 119 still being attacked
+    round 3: 469 of 500 below the threshold, 454 below 50% of it, 46 still being attacked
+    round 4: 478 of 500 below the threshold, 476 below 50% of it, 24 still being attacked
+    round 5: 487 of 500 below the threshold, 484 below 50% of it, 16 still being attacked
+    round 6: 489 of 500 below the threshold, 489 below 50% of it, 11 still being attacked
+    round 7: 490 of 500 below the threshold, 489 below 50% of it, 11 still being attacked
+    round 8: 493 of 500 below the threshold, 490 below 50% of it, 10 still being attacked
+    round 9: 495 of 500 below the threshold, 493 below 50% of it, 7 still being attacked
+    round 10: 495 of 500 below the threshold, 495 below 50% of it, 5 still being attacked
+    round 11: 495 of 500 below the threshold, 495 below 50% of it, 5 still being attacked
+    round 12: 495 of 500 below the threshold, 495 below 50% of it, 5 still being attacked
+    round 13: 495 of 500 below the threshold, 495 below 50% of it, 5 still being attacked
+    round 14: 495 of 500 below the threshold, 495 below 50% of it, 5 still being attacked
+    round 15: 495 of 500 below the threshold, 495 below 50% of it, 5 still being attacked
+  white-box hill-climb against the TARGET 4a (upper bound):
+    round 1: 239 of 500 below the threshold, 151 below 50% of it, 261 still being attacked
+    round 2: 358 of 500 below the threshold, 219 below 50% of it, 142 still being attacked
+    round 3: 401 of 500 below the threshold, 233 below 50% of it, 99 still being attacked
+    round 4: 424 of 500 below the threshold, 235 below 50% of it, 76 still being attacked
+    round 5: 451 of 500 below the threshold, 238 below 50% of it, 49 still being attacked
+    round 6: 466 of 500 below the threshold, 238 below 50% of it, 34 still being attacked
+    round 7: 472 of 500 below the threshold, 238 below 50% of it, 28 still being attacked
+    round 8: 475 of 500 below the threshold, 238 below 50% of it, 25 still being attacked
+    round 9: 479 of 500 below the threshold, 238 below 50% of it, 21 still being attacked
+    round 10: 483 of 500 below the threshold, 238 below 50% of it, 17 still being attacked
+    round 11: 485 of 500 below the threshold, 238 below 50% of it, 15 still being attacked
+    round 12: 486 of 500 below the threshold, 238 below 50% of it, 14 still being attacked
+    round 13: 488 of 500 below the threshold, 238 below 50% of it, 12 still being attacked
+    round 14: 488 of 500 below the threshold, 238 below 50% of it, 12 still being attacked
+    round 15: 489 of 500 below the threshold, 238 below 50% of it, 11 still being attacked
+
+=== s2 small gradient boosting (50 rounds): pool of 500 validation phishing URLs caught by both 4a and the surrogate (8b caught 498 of them before editing)
+  hill-climb against the SURROGATE, variant standard:
+    round 1: 308 of 500 below the threshold, 148 below 50% of it, 192 still being attacked
+    round 2: 377 of 500 below the threshold, 162 below 50% of it, 123 still being attacked
+    round 3: 412 of 500 below the threshold, 163 below 50% of it, 88 still being attacked
+    round 4: 425 of 500 below the threshold, 164 below 50% of it, 75 still being attacked
+    round 5: 436 of 500 below the threshold, 164 below 50% of it, 64 still being attacked
+    round 6: 443 of 500 below the threshold, 164 below 50% of it, 57 still being attacked
+    round 7: 444 of 500 below the threshold, 164 below 50% of it, 56 still being attacked
+    round 8: 445 of 500 below the threshold, 164 below 50% of it, 55 still being attacked
+    round 9: 446 of 500 below the threshold, 164 below 50% of it, 54 still being attacked
+    round 10: 447 of 500 below the threshold, 164 below 50% of it, 53 still being attacked
+    round 11: 448 of 500 below the threshold, 164 below 50% of it, 52 still being attacked
+    round 12: 448 of 500 below the threshold, 164 below 50% of it, 52 still being attacked
+    round 13: 449 of 500 below the threshold, 164 below 50% of it, 51 still being attacked
+    round 14: 451 of 500 below the threshold, 164 below 50% of it, 49 still being attacked
+    round 15: 451 of 500 below the threshold, 164 below 50% of it, 49 still being attacked
+  hill-climb against the SURROGATE, variant margin (50%):
+    round 1: 308 of 500 below the threshold, 148 below 50% of it, 352 still being attacked
+    round 2: 378 of 500 below the threshold, 267 below 50% of it, 233 still being attacked
+    round 3: 407 of 500 below the threshold, 315 below 50% of it, 185 still being attacked
+    round 4: 420 of 500 below the threshold, 336 below 50% of it, 164 still being attacked
+    round 5: 431 of 500 below the threshold, 357 below 50% of it, 143 still being attacked
+    round 6: 437 of 500 below the threshold, 371 below 50% of it, 129 still being attacked
+    round 7: 440 of 500 below the threshold, 380 below 50% of it, 120 still being attacked
+    round 8: 444 of 500 below the threshold, 382 below 50% of it, 118 still being attacked
+    round 9: 446 of 500 below the threshold, 383 below 50% of it, 117 still being attacked
+    round 10: 446 of 500 below the threshold, 384 below 50% of it, 116 still being attacked
+    round 11: 447 of 500 below the threshold, 385 below 50% of it, 115 still being attacked
+    round 12: 447 of 500 below the threshold, 385 below 50% of it, 115 still being attacked
+    round 13: 449 of 500 below the threshold, 387 below 50% of it, 113 still being attacked
+    round 14: 449 of 500 below the threshold, 388 below 50% of it, 112 still being attacked
+    round 15: 449 of 500 below the threshold, 389 below 50% of it, 111 still being attacked
+  white-box hill-climb against the TARGET 4a (upper bound):
+    round 1: 251 of 500 below the threshold, 146 below 50% of it, 249 still being attacked
+    round 2: 374 of 500 below the threshold, 214 below 50% of it, 126 still being attacked
+    round 3: 412 of 500 below the threshold, 223 below 50% of it, 88 still being attacked
+    round 4: 444 of 500 below the threshold, 228 below 50% of it, 56 still being attacked
+    round 5: 457 of 500 below the threshold, 228 below 50% of it, 43 still being attacked
+    round 6: 468 of 500 below the threshold, 228 below 50% of it, 32 still being attacked
+    round 7: 476 of 500 below the threshold, 228 below 50% of it, 24 still being attacked
+    round 8: 482 of 500 below the threshold, 228 below 50% of it, 18 still being attacked
+    round 9: 482 of 500 below the threshold, 228 below 50% of it, 18 still being attacked
+    round 10: 484 of 500 below the threshold, 228 below 50% of it, 16 still being attacked
+    round 11: 484 of 500 below the threshold, 228 below 50% of it, 16 still being attacked
+    round 12: 485 of 500 below the threshold, 228 below 50% of it, 15 still being attacked
+    round 13: 488 of 500 below the threshold, 228 below 50% of it, 12 still being attacked
+    round 14: 489 of 500 below the threshold, 228 below 50% of it, 11 still being attacked
+    round 15: 489 of 500 below the threshold, 228 below 50% of it, 11 still being attacked
+
+
+SUMMARY (counts with 95% Wilson intervals, in percent)
+
+[s1 logistic regression] variant: standard | subset: surrogate-evading (score below threshold)
+   URLs in subset: 495/500 = 99.0% [97.7, 99.6] of the pool | mean edits per URL: 1.71
+   evade target 4a (transfer): 245/495 = 49.5% [45.1, 53.9]
+   evade secondary target 8b: 329/495 = 66.5% [62.2, 70.5]   (only URLs 8b caught before editing: 326/491 = 66.4% [62.1, 70.4])
+   RANDOM-EDIT control, same number of edits: evade 4a 55/495 = 11.1% [8.6, 14.2]; evade 8b 72/495 = 14.5% [11.7, 17.9]
+   edit operations used: {'benign_words_in_path': 519, 'path_shortening': 36, 'benign_words_in_query': 212, 'lookalike_characters': 76, 'extra_subdomains': 1}
+
+[s1 logistic regression] variant: standard | subset: reached the 50% margin
+   URLs in subset: 330/500 = 66.0% [61.7, 70.0] of the pool | mean edits per URL: 1.73
+   evade target 4a (transfer): 195/330 = 59.1% [53.7, 64.3]
+   evade secondary target 8b: 251/330 = 76.1% [71.2, 80.3]   (only URLs 8b caught before editing: 248/327 = 75.8% [70.9, 80.2])
+   RANDOM-EDIT control, same number of edits: evade 4a 48/330 = 14.5% [11.1, 18.8]; evade 8b 60/330 = 18.2% [14.4, 22.7]
+   edit operations used: {'benign_words_in_path': 352, 'path_shortening': 17, 'benign_words_in_query': 157, 'lookalike_characters': 46}
+
+[s1 logistic regression] variant: margin (50%) | subset: surrogate-evading (score below threshold)
+   URLs in subset: 495/500 = 99.0% [97.7, 99.6] of the pool | mean edits per URL: 2.05
+   evade target 4a (transfer): 299/495 = 60.4% [56.0, 64.6]
+   evade secondary target 8b: 388/495 = 78.4% [74.5, 81.8]   (only URLs 8b caught before editing: 385/491 = 78.4% [74.6, 81.8])
+   RANDOM-EDIT control, same number of edits: evade 4a 55/495 = 11.1% [8.6, 14.2]; evade 8b 71/495 = 14.3% [11.5, 17.7]
+   edit operations used: {'benign_words_in_path': 644, 'path_shortening': 35, 'benign_words_in_query': 260, 'lookalike_characters': 73, 'extra_subdomains': 4}
+
+[s1 logistic regression] variant: margin (50%) | subset: reached the 50% margin
+   URLs in subset: 495/500 = 99.0% [97.7, 99.6] of the pool | mean edits per URL: 2.05
+   evade target 4a (transfer): 299/495 = 60.4% [56.0, 64.6]
+   evade secondary target 8b: 388/495 = 78.4% [74.5, 81.8]   (only URLs 8b caught before editing: 385/491 = 78.4% [74.6, 81.8])
+   RANDOM-EDIT control, same number of edits: evade 4a 55/495 = 11.1% [8.6, 14.2]; evade 8b 71/495 = 14.3% [11.5, 17.7]
+   edit operations used: {'benign_words_in_path': 644, 'path_shortening': 35, 'benign_words_in_query': 260, 'lookalike_characters': 73, 'extra_subdomains': 4}
+
+[s1 logistic regression] variant: white-box on 4a | subset: evading 4a (score below threshold)
+   URLs in subset: 489/500 = 97.8% [96.1, 98.8] of the pool | mean edits per URL: 2.29
+   evade target 4a (transfer): 489/489 = 100.0% [99.2, 100.0]
+   evade secondary target 8b: 445/489 = 91.0% [88.1, 93.2]   (only URLs 8b caught before editing: 442/484 = 91.3% [88.5, 93.5])
+   edit operations used: {'benign_words_in_query': 390, 'benign_words_in_path': 520, 'path_shortening': 73, 'extra_subdomains': 33, 'lookalike_characters': 96, 'padding': 9}
+
+[s2 small gradient boosting (50 rounds)] variant: standard | subset: surrogate-evading (score below threshold)
+   URLs in subset: 451/500 = 90.2% [87.3, 92.5] of the pool | mean edits per URL: 1.69
+   evade target 4a (transfer): 302/451 = 67.0% [62.5, 71.1]
+   evade secondary target 8b: 338/451 = 74.9% [70.7, 78.7]   (only URLs 8b caught before editing: 336/449 = 74.8% [70.6, 78.6])
+   RANDOM-EDIT control, same number of edits: evade 4a 53/451 = 11.8% [9.1, 15.1]; evade 8b 75/451 = 16.6% [13.5, 20.3]
+   edit operations used: {'benign_words_in_path': 258, 'benign_words_in_query': 342, 'lookalike_characters': 87, 'path_shortening': 62, 'extra_subdomains': 8, 'padding': 7}
+
+[s2 small gradient boosting (50 rounds)] variant: standard | subset: reached the 50% margin
+   URLs in subset: 164/500 = 32.8% [28.8, 37.0] of the pool | mean edits per URL: 1.12
+   evade target 4a (transfer): 156/164 = 95.1% [90.7, 97.5]
+   evade secondary target 8b: 150/164 = 91.5% [86.2, 94.8]   (only URLs 8b caught before editing: 148/162 = 91.4% [86.0, 94.8])
+   RANDOM-EDIT control, same number of edits: evade 4a 40/164 = 24.4% [18.5, 31.5]; evade 8b 46/164 = 28.0% [21.7, 35.4]
+   edit operations used: {'benign_words_in_query': 78, 'benign_words_in_path': 68, 'path_shortening': 17, 'lookalike_characters': 19, 'padding': 1}
+
+[s2 small gradient boosting (50 rounds)] variant: margin (50%) | subset: surrogate-evading (score below threshold)
+   URLs in subset: 449/500 = 89.8% [86.8, 92.2] of the pool | mean edits per URL: 3.19
+   evade target 4a (transfer): 424/449 = 94.4% [91.9, 96.2]
+   evade secondary target 8b: 428/449 = 95.3% [93.0, 96.9]   (only URLs 8b caught before editing: 426/447 = 95.3% [92.9, 96.9])
+   RANDOM-EDIT control, same number of edits: evade 4a 99/449 = 22.0% [18.5, 26.1]; evade 8b 137/449 = 30.5% [26.4, 34.9]
+   edit operations used: {'benign_words_in_path': 472, 'extra_subdomains': 31, 'benign_words_in_query': 671, 'lookalike_characters': 86, 'path_shortening': 139, 'padding': 34}
+
+[s2 small gradient boosting (50 rounds)] variant: margin (50%) | subset: reached the 50% margin
+   URLs in subset: 389/500 = 77.8% [74.0, 81.2] of the pool | mean edits per URL: 2.37
+   evade target 4a (transfer): 371/389 = 95.4% [92.8, 97.1]
+   evade secondary target 8b: 368/389 = 94.6% [91.9, 96.4]   (only URLs 8b caught before editing: 366/387 = 94.6% [91.8, 96.4])
+   RANDOM-EDIT control, same number of edits: evade 4a 92/389 = 23.7% [19.7, 28.1]; evade 8b 123/389 = 31.6% [27.2, 36.4]
+   edit operations used: {'benign_words_in_path': 304, 'extra_subdomains': 15, 'benign_words_in_query': 418, 'lookalike_characters': 75, 'path_shortening': 104, 'padding': 5}
+
+[s2 small gradient boosting (50 rounds)] variant: white-box on 4a | subset: evading 4a (score below threshold)
+   URLs in subset: 489/500 = 97.8% [96.1, 98.8] of the pool | mean edits per URL: 2.16
+   evade target 4a (transfer): 489/489 = 100.0% [99.2, 100.0]
+   evade secondary target 8b: 447/489 = 91.4% [88.6, 93.6]   (only URLs 8b caught before editing: 445/487 = 91.4% [88.5, 93.6])
+   edit operations used: {'benign_words_in_path': 503, 'benign_words_in_query': 391, 'lookalike_characters': 90, 'extra_subdomains': 14, 'path_shortening': 52, 'padding': 4}
