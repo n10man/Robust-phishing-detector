@@ -9,9 +9,12 @@ import copy
 import io
 import json
 import os
+import pty
+import select
 import subprocess
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 from unittest import mock
 import numpy as np
@@ -50,6 +53,41 @@ if sys.argv[1:] == ["--child-tty-gate"]:
     print("CHILD: gate did not abort")          # must never be reached
     sys.exit(0)
 
+if sys.argv[1:] == ["--child-tty-phrase"]:           # child for the pseudo-terminal tests: ONLY the terminal gate, nothing else
+    fe.check_phrase(fe.read_phrase_from_tty)
+    print("CHILD: phrase accepted")
+    sys.exit(0)
+
+
+def run_in_pty(argv, typed=None, wait_for=b"press Enter", timeout=120):
+    """Start argv on a pseudo-terminal that becomes its controlling terminal; type `typed` after the prompt appears.
+    Returns (exit code, output)."""
+    pid, master = pty.fork()
+    if pid == 0:
+        os.execv(argv[0], argv)
+    out, sent, deadline, timed_out = b"", False, time.time() + timeout, True
+    while time.time() < deadline:
+        ready, _, _ = select.select([master], [], [], 1)
+        if ready:
+            try:
+                data = os.read(master, 4096)
+            except OSError:
+                timed_out = False
+                break
+            if not data:
+                timed_out = False
+                break
+            out += data
+            if typed is not None and not sent and wait_for in out:
+                os.write(master, typed.encode() + b"\n")
+                sent = True
+    if timed_out:
+        os.kill(pid, 9)
+    _, status = os.waitpid(pid, 0)
+    os.close(master)
+    return (-9 if timed_out else os.waitstatus_to_exitcode(status)), out.decode(errors="replace")
+
+
 tmp = tempfile.mkdtemp(prefix="check_final_eval_")
 
 # --- terminal gate: piped input (even the right phrase) must abort
@@ -70,6 +108,35 @@ ok, out = fails(fe.check_phrase, lambda: "")
 check(ok, "an empty phrase aborts")
 fe.check_phrase(lambda: fe.PHRASE)
 check(True, "the exact phrase passes the phrase check")
+
+# --- the terminal gate on a real pseudo-terminal (this is the path that failed on the first real launch)
+me, env_child = os.path.abspath(__file__), {**os.environ, "PYTHONHASHSEED": "0"}
+os.environ.update(env_child)
+code, out = run_in_pty([sys.executable, me, "--child-tty-phrase"], typed=fe.PHRASE)
+check(code == 0 and "CHILD: phrase accepted" in out and "GATE FAILED" not in out,
+      f"pseudo-terminal: the phrase typed on the controlling terminal passes (exit {code})")
+code, out = run_in_pty([sys.executable, me, "--child-tty-phrase"], typed="run final once")
+check(code == 2 and "GATE FAILED: typed phrase" in out and "Nothing was run" in out and "accepted" not in out,
+      "pseudo-terminal: a wrong phrase typed on the terminal aborts")
+code, out = run_in_pty([sys.executable, me, "--child-tty-phrase"], typed="")
+check(code == 2 and "GATE FAILED: typed phrase" in out, "pseudo-terminal: an empty line aborts")
+# a terminal exists, but stdin is redirected from a file that holds the right phrase: must abort (piped input cannot work)
+code, out = run_in_pty(["/bin/sh", "-c", f'exec "{sys.executable}" "{me}" --child-tty-phrase < "{phrase_file}"'])
+check(code == 2 and "stdin is not a terminal" in out and "accepted" not in out,
+      "a terminal exists but stdin is a file holding the phrase: aborts")
+# no controlling terminal at all (new session), phrase fed through a pipe: must abort
+res = subprocess.run([sys.executable, me, "--child-tty-phrase"], input=fe.PHRASE + "\n", capture_output=True, text=True,
+                     start_new_session=True, env=env_child)
+check(res.returncode == 2 and "GATE FAILED: controlling terminal" in res.stdout and "accepted" not in res.stdout,
+      "no controlling terminal, phrase fed through a pipe: aborts")
+# the old text-mode open is exactly what failed; the gate must not use it any more
+_tree = ast.parse(open(os.path.join(fe.REPO, "notebooks", "final_eval.py")).read())
+_text_opens = [n for n in ast.walk(_tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "open"
+               and n.args and isinstance(n.args[0], ast.Constant) and n.args[0].value == "/dev/tty"]
+_raw_opens = [n for n in ast.walk(_tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "open"
+              and n.args and isinstance(n.args[0], ast.Constant) and n.args[0].value == "/dev/tty"]
+check(not _text_opens and len(_raw_opens) == 1,
+      "the terminal gate no longer uses the text-mode open('/dev/tty', ...) that failed; it uses one raw os.open on /dev/tty")
 
 # --- the other gates
 ok, out = fails(fe.gate_mode, SimpleNamespace(final=False, dry_run=False, dry_run_dir=None))

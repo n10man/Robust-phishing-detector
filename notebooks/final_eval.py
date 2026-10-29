@@ -147,7 +147,9 @@ def gate_not_exists(paths):
 
 
 def open_controlling_terminal():
-    return open("/dev/tty", "r+")
+    """File descriptor of the controlling terminal. No text layer: open("/dev/tty", "r+") fails with
+    'File or stream is not seekable' because Python's text wrapper wants to seek, and a terminal cannot."""
+    return os.open("/dev/tty", os.O_RDWR)
 
 
 def read_phrase_from_tty(prompt="Type exactly  RUN FINAL ONCE  and press Enter: "):
@@ -155,15 +157,22 @@ def read_phrase_from_tty(prompt="Type exactly  RUN FINAL ONCE  and press Enter: 
     if not sys.stdin.isatty():
         gate_fail("controlling terminal", "stdin is a terminal and /dev/tty can be opened", "stdin is not a terminal (input was piped or redirected)")
     try:
-        tty = open_controlling_terminal()
+        fd = open_controlling_terminal()
     except OSError as e:
         gate_fail("controlling terminal", "/dev/tty can be opened", f"cannot open /dev/tty: {e}")
     try:
-        tty.write(prompt)
-        tty.flush()
-        return tty.readline().rstrip("\r\n")
+        if not os.isatty(fd):
+            gate_fail("controlling terminal", "/dev/tty is a terminal", "/dev/tty opened but is not a terminal")
+        os.write(fd, prompt.encode())
+        line = b""
+        while not line.endswith(b"\n") and len(line) < 4096:
+            chunk = os.read(fd, 1024)
+            if not chunk:
+                break
+            line += chunk
+        return line.decode(errors="replace").rstrip("\r\n")
     finally:
-        tty.close()
+        os.close(fd)
 
 
 def check_phrase(read_phrase):
