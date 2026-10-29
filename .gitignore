@@ -8,3 +8,6 @@ results/val_missed_phishing.csv
 results/hillclimb_results.csv
 notebooks/test.py
 CLAUDE.md
+data_v2/
+models_v2/
+results/HANDOFF.md
