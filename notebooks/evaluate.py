@@ -33,7 +33,17 @@ parser.add_argument("--recipe", default="models/feature_recipe.joblib")
 parser.add_argument("--out", default=BASELINE_DIR)
 parser.add_argument("--target-fpr", type=float, default=None,
                     help="false-alarm rate to match; default: the saved v1 value")
+parser.add_argument("--val-file", default="data/val.csv",
+                    help="validation file to evaluate on (never a test file)")
+parser.add_argument("--train-file", default="data/train.csv",
+                    help="training file the model was fitted on (attack words, Tranco exclusion)")
+parser.add_argument("--own-target", action="store_true",
+                    help="match this model's own false-alarm rate at 0.5 (a new reference run)")
 args = parser.parse_args()
+
+for path in (args.val_file, args.train_file):
+    if "test" in os.path.basename(path).lower():
+        raise SystemExit(f"Refusing to read {path}: this script is for validation data only.")
 
 lines = []
 
@@ -57,7 +67,7 @@ def score(urls, chunk=20000):
     return np.concatenate(out)
 
 # 1. Clean validation set ---------------------------------------------------
-val = pd.read_csv("data/val.csv")
+val = pd.read_csv(args.val_file)
 phish = val.loc[val["label"] == 1, "url"].astype(str).tolist()
 safe = val.loc[val["label"] == 0, "url"].astype(str).tolist()
 log(f"Evaluating on VALIDATION only: {len(phish)} phishing, {len(safe)} safe URLs")
@@ -70,6 +80,8 @@ saved = os.path.join(BASELINE_DIR, "metrics.json")
 is_baseline_run = os.path.abspath(args.out) == os.path.abspath(BASELINE_DIR)
 if args.target_fpr is not None:
     target_fpr = args.target_fpr
+elif args.own_target:
+    target_fpr = float((p_sf >= THRESHOLD).mean())
 elif not is_baseline_run and os.path.exists(saved):
     target_fpr = json.load(open(saved))["target_fpr"]
 else:
@@ -98,7 +110,7 @@ for name, m in [("matched", at_matched), ("0.5", at_half)]:
         f"false alarms {m['false_positives']}, missed {m['false_negatives']}")
 
 # 2 + 3. Attack families on phishing (recall) and on safe (share flagged) --------
-all_words = load_benign_words()
+all_words = load_benign_words(args.train_file)
 safe_small = random.Random(5).sample(safe, N_SAFE_ATTACKED)
 rows = [{"family": "none (clean)",
          "recall_matched": float((p_ph >= thr).mean()),
@@ -125,7 +137,7 @@ top = t[t["rank"] <= N_TOP]["domain"].tolist()
 rest = t[t["rank"] > N_TOP]["domain"].tolist()
 groups = {f"top {N_TOP}": top,
           "random from the rest": random.Random(1).sample(rest, min(N_RANDOM, len(rest)))}
-train_urls = set(pd.read_csv("data/train.csv")["url"].astype(str).str.lower().str.rstrip("/"))
+train_urls = set(pd.read_csv(args.train_file)["url"].astype(str).str.lower().str.rstrip("/"))
 groups = {g: [d for d in ds if d not in train_urls] for g, ds in groups.items()}
 forms = {"bare (google.com)": lambda d: d,
          "with www": lambda d: "www." + d,
