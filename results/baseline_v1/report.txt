@@ -1,0 +1,33 @@
+Evaluating on VALIDATION only: 16135 phishing, 58930 safe URLs
+Model: models/gradient_boosting.joblib
+Target false-alarm rate: 0.0365  ->  matched threshold: 0.5000
+
+CLEAN VALIDATION METRICS
+  AUC (threshold-free): 0.9920
+  at matched threshold (0.5000): recall 0.9493, precision 0.8769, F1 0.9116, false alarms 2151, missed 818
+  at 0.5 threshold (0.5000): recall 0.9493, precision 0.8769, F1 0.9116, false alarms 2151, missed 818
+
+ATTACK FAMILIES (recall = share of phishing caught, higher is better;
+safe_flagged = share of 15000 edited SAFE URLs flagged, lower is better)
+
+               family  recall_matched  recall_at_0.5  safe_flagged_matched
+         none (clean)          0.9493         0.9493                0.0377
+ benign_words_in_path          0.7308         0.7308                0.0236
+benign_words_in_query          0.7046         0.7046                0.0076
+ lookalike_characters          0.9409         0.9409                0.0367
+     extra_subdomains          0.9665         0.9665                0.2337
+      path_shortening          0.9225         0.9225                0.0856
+              padding          0.9344         0.9344                0.1299
+           random_mix          0.7620         0.7620                0.1037
+
+TRANCO SAFE DOMAINS FLAGGED AS PHISHING (lower is better)
+
+               group              form    n  flagged_matched  flagged_at_0.5
+           top 10000 bare (google.com) 9839           0.9992          0.9992
+           top 10000          with www 9839           1.0000          1.0000
+           top 10000    trailing slash 9839           0.3055          0.3055
+           top 10000  with /index.html 9839           0.4517          0.4517
+random from the rest bare (google.com) 9973           0.9997          0.9997
+random from the rest          with www 9973           1.0000          1.0000
+random from the rest    trailing slash 9973           0.4040          0.4040
+random from the rest  with /index.html 9973           0.5544          0.5544
