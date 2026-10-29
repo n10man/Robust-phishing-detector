@@ -24,7 +24,7 @@
       "definitions": {
         "R1": "host is a raw IPv4 address"
       },
-      "not_enabled": {
+      "rule_status": {
         "R1": "VALIDATED",
         "R2": "untestable on this data (fewer than 30 hits)",
         "R3": "NOT validated (precision below 90%)",

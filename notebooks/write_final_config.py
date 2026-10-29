@@ -48,7 +48,7 @@ cfg = {"validation_only": True, "target_false_alarm_rate_on_clean_validation_saf
                      "rejected_variants_validation_thresholds": {g: exp12["variants"][g]["threshold"] for g in ("g1", "g2")}},
            "rules": {"on": True, "enabled": validated,
                      "definitions": {"R1": "host is a raw IPv4 address"},
-                     "not_enabled": exp11["rule_status"],
+                     "rule_status": exp11["rule_status"],
                      "validation_rule": f"at least {exp11['min_hits']} validation hits and at least {int(exp11['min_precision'] * 100)}% of hits phishing"},
            "abstain": {"on": False, "role": "second view only; does not replace the primary system",
                        "window_share_of_all_clean_validation_urls": 0.10, "bare_domain_routing": True,
