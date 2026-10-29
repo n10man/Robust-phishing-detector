@@ -20,12 +20,14 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 from stage2_computer_readable import extract_features
 from attacks import FAMILIES, apply_family, load_benign_words
+from domains import registered_domain, has_path, tld
 
 BASELINE_DIR = "results/baseline_v1"
 THRESHOLD = 0.5       # the v1 cut-off; the matched false-alarm level is taken from it
 N_SAFE_ATTACKED = 15000
 N_TOP = 10000
 N_RANDOM = 10000
+MIN_TLD = 20          # a TLD counts as "in both classes" with at least this many held-out domains in each
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", default="models/gradient_boosting.joblib")
@@ -39,10 +41,19 @@ parser.add_argument("--train-file", default="data/train.csv",
                     help="training file the model was fitted on (attack words, Tranco exclusion)")
 parser.add_argument("--own-target", action="store_true",
                     help="match this model's own false-alarm rate at 0.5 (a new reference run)")
+parser.add_argument("--bare-heldout-safe", default=None,
+                    help="CSV (url,label) of held-out safe bare domains: reports the share flagged")
+parser.add_argument("--bare-heldout-phish", default=None,
+                    help="CSV (url,label) of held-out phishing bare domains: reports the share caught")
+parser.add_argument("--exclude-domains-file", default=None,
+                    help="text file of registered domains to leave out of the Tranco check")
+parser.add_argument("--split-bare-path", action="store_true",
+                    help="also report validation metrics for bare URLs versus URLs with a path")
 args = parser.parse_args()
 
-for path in (args.val_file, args.train_file):
-    if "test" in os.path.basename(path).lower():
+for path in (args.val_file, args.train_file, args.bare_heldout_safe, args.bare_heldout_phish,
+             args.exclude_domains_file):
+    if path and "test" in os.path.basename(path).lower():
         raise SystemExit(f"Refusing to read {path}: this script is for validation data only.")
 
 lines = []
@@ -128,6 +139,55 @@ log("\nATTACK FAMILIES (recall = share of phishing caught, higher is better;")
 log(f"safe_flagged = share of {N_SAFE_ATTACKED} edited SAFE URLs flagged, lower is better)\n")
 log(attack_table.round(4).to_string(index=False))
 
+extra_metrics = {}
+extra_tables = {}
+
+# 3b. Held-out bare domains (only with --bare-heldout-safe and --bare-heldout-phish) ----
+if args.bare_heldout_safe and args.bare_heldout_phish:
+    hs = pd.read_csv(args.bare_heldout_safe)["url"].astype(str).tolist()
+    hp = pd.read_csv(args.bare_heldout_phish)["url"].astype(str).tolist()
+    s_hs, s_hp = score(hs), score(hp)
+    tld_s, tld_p = pd.Series([tld(u) for u in hs]), pd.Series([tld(u) for u in hp])
+    common = (set(tld_s.value_counts()[lambda c: c >= MIN_TLD].index)
+              & set(tld_p.value_counts()[lambda c: c >= MIN_TLD].index))
+    len_s, len_p = np.array([len(u) for u in hs]), np.array([len(u) for u in hp])
+
+    def held_row(label, ms, mp):
+        row = {"subset": label, "n_safe": int(ms.sum()), "n_phishing": int(mp.sum())}
+        for tname, t in [("matched", thr), ("0.5", THRESHOLD)]:
+            row[f"safe_flagged_{tname}"] = float((s_hs[ms] >= t).mean()) if ms.sum() else None
+            row[f"phishing_caught_{tname}"] = float((s_hp[mp] >= t).mean()) if mp.sum() else None
+        return row
+
+    rows = [held_row("all held-out", np.ones(len(hs), bool), np.ones(len(hp), bool)),
+            held_row(f"TLDs in both classes (>= {MIN_TLD} each; {len(common)} TLDs)",
+                     tld_s.isin(common).to_numpy(), tld_p.isin(common).to_numpy())]
+    for lo, hi in [(0, 10), (11, 15), (16, 20), (21, 999)]:
+        rows.append(held_row(f"domain length {lo}-{hi}",
+                             (len_s >= lo) & (len_s <= hi), (len_p >= lo) & (len_p <= hi)))
+    held_table = pd.DataFrame(rows)
+    log("\nHELD-OUT BARE DOMAINS (safe_flagged: lower is better; phishing_caught: higher is better)\n")
+    log(held_table.round(4).to_string(index=False))
+    extra_metrics["bare_heldout"] = rows
+    extra_tables["bare_heldout.csv"] = held_table
+
+# 3c. Validation metrics split by bare URLs versus URLs with a path (--split-bare-path) ----
+if args.split_bare_path:
+    has_ph = np.array([has_path(u) for u in phish])
+    has_sf = np.array([has_path(u) for u in safe])
+    rows = []
+    for label, mp, ms in [("bare (no path)", ~has_ph, ~has_sf), ("has a path", has_ph, has_sf)]:
+        row = {"subset": label, "n_phishing": int(mp.sum()), "n_safe": int(ms.sum())}
+        for tname, t in [("matched", thr), ("0.5", THRESHOLD)]:
+            row[f"recall_{tname}"] = float((p_ph[mp] >= t).mean()) if mp.sum() else None
+            row[f"false_alarm_{tname}"] = float((p_sf[ms] >= t).mean()) if ms.sum() else None
+        rows.append(row)
+    split_table = pd.DataFrame(rows)
+    log("\nVALIDATION SPLIT BY BARE VERSUS HAS-A-PATH (recall higher is better; false_alarm lower is better)\n")
+    log(split_table.round(4).to_string(index=False))
+    extra_metrics["split_bare_path"] = rows
+    extra_tables["split_bare_path.csv"] = split_table
+
 # 4. Bare-domain flag rate on Tranco ----------------------------------------
 t = pd.read_csv("data/tranco_262W9.csv", header=None, names=["rank", "domain"])
 t["rank"] = pd.to_numeric(t["rank"], errors="coerce")
@@ -139,6 +199,10 @@ groups = {f"top {N_TOP}": top,
           "random from the rest": random.Random(1).sample(rest, min(N_RANDOM, len(rest)))}
 train_urls = set(pd.read_csv(args.train_file)["url"].astype(str).str.lower().str.rstrip("/"))
 groups = {g: [d for d in ds if d not in train_urls] for g, ds in groups.items()}
+if args.exclude_domains_file:
+    excluded = set(open(args.exclude_domains_file).read().split())
+    groups = {g: [d for d in ds if d not in excluded and registered_domain(d) not in excluded]
+              for g, ds in groups.items()}
 forms = {"bare (google.com)": lambda d: d,
          "with www": lambda d: "www." + d,
          "trailing slash": lambda d: d + "/",
@@ -159,7 +223,9 @@ os.makedirs(args.out, exist_ok=True)
 with open(os.path.join(args.out, "metrics.json"), "w") as f:
     json.dump({"model": args.model, "split": "validation", "target_fpr": target_fpr,
                "matched_threshold": thr, "auc": auc,
-               "at_matched": at_matched, "at_0.5": at_half}, f, indent=2)
+               "at_matched": at_matched, "at_0.5": at_half, **extra_metrics}, f, indent=2)
+for name, table in extra_tables.items():
+    table.to_csv(os.path.join(args.out, name), index=False)
 attack_table.to_csv(os.path.join(args.out, "attack_families.csv"), index=False)
 bare_table.to_csv(os.path.join(args.out, "bare_domain.csv"), index=False)
 with open(os.path.join(args.out, "report.txt"), "w") as f:

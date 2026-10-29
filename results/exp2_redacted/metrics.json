@@ -1,0 +1,29 @@
+{
+  "model": "models_v2/gradient_boosting_redacted.joblib",
+  "split": "validation",
+  "target_fpr": 0.03650093331070762,
+  "matched_threshold": 0.7456044612301446,
+  "auc": 0.9745262769150773,
+  "at_matched": {
+    "threshold": 0.7456044612301446,
+    "recall": 0.8578246048961884,
+    "precision": 0.8654952476238119,
+    "f1": 0.8616428549195381,
+    "false_alarm_rate": 0.03650093331070762,
+    "true_positives": 13841,
+    "false_negatives": 2294,
+    "false_positives": 2151,
+    "true_negatives": 56779
+  },
+  "at_0.5": {
+    "threshold": 0.5,
+    "recall": 0.9256894948868919,
+    "precision": 0.732300451068837,
+    "f1": 0.8177164599928827,
+    "false_alarm_rate": 0.09265229933819787,
+    "true_positives": 14936,
+    "false_negatives": 1199,
+    "false_positives": 5460,
+    "true_negatives": 53470
+  }
+}

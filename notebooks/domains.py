@@ -36,6 +36,25 @@ def registered_domain(url):
     return _group_of_host(host)
 
 
+_icann = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None,
+                               include_psl_private_domains=False)
+
+
+def is_bare(host):
+    """True if the host IS its registered domain on the public suffix list only.
+
+    Hosting-platform suffixes (workers.dev, blogspot.com, ...) are NOT counted, so
+    foo.workers.dev is not bare. This is the definition of "bare domain" for Experiment 3.
+    """
+    host = str(host).strip().lower().strip(".")
+    return bool(host) and _icann(host).registered_domain == host
+
+
+def tld(host):
+    """The last label of a host (com, org, uk, ...)."""
+    return str(host).strip().lower().strip(".").rsplit(".", 1)[-1]
+
+
 def has_path(url):
     """True if there is anything after the host (a path or a query)."""
     rest = normalise(url)

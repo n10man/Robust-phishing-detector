@@ -1,0 +1,33 @@
+Evaluating on VALIDATION only: 16135 phishing, 58930 safe URLs
+Model: models_v2/gradient_boosting_redacted.joblib
+Target false-alarm rate: 0.0365  ->  matched threshold: 0.7456
+
+CLEAN VALIDATION METRICS
+  AUC (threshold-free): 0.9745
+  at matched threshold (0.7456): recall 0.8578, precision 0.8655, F1 0.8616, false alarms 2151, missed 2294
+  at 0.5 threshold (0.5000): recall 0.9257, precision 0.7323, F1 0.8177, false alarms 5460, missed 1199
+
+ATTACK FAMILIES (recall = share of phishing caught, higher is better;
+safe_flagged = share of 15000 edited SAFE URLs flagged, lower is better)
+
+               family  recall_matched  recall_at_0.5  safe_flagged_matched
+         none (clean)          0.8578         0.9257                0.0347
+ benign_words_in_path          0.5472         0.6517                0.0156
+benign_words_in_query          0.5331         0.6491                0.0090
+ lookalike_characters          0.8374         0.9151                0.0333
+     extra_subdomains          0.8995         0.9588                0.1949
+      path_shortening          0.8141         0.9044                0.0555
+              padding          0.8164         0.9054                0.1358
+           random_mix          0.5883         0.6976                0.0907
+
+TRANCO SAFE DOMAINS FLAGGED AS PHISHING (lower is better)
+
+               group              form    n  flagged_matched  flagged_at_0.5
+           top 10000 bare (google.com) 9824           0.9657          0.9817
+           top 10000          with www 9824           0.9998          1.0000
+           top 10000    trailing slash 9824           0.1550          0.3634
+           top 10000  with /index.html 9824           0.3527          0.5566
+random from the rest bare (google.com) 9989           0.9821          0.9938
+random from the rest          with www 9989           1.0000          1.0000
+random from the rest    trailing slash 9989           0.2233          0.4572
+random from the rest  with /index.html 9989           0.4492          0.6627
