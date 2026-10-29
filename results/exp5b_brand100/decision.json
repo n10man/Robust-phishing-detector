@@ -1,0 +1,25 @@
+{
+  "name": "exp5b",
+  "target_fpr": 0.03650093331070762,
+  "keep": false,
+  "criterion_1_primary": false,
+  "criterion_1_alternative": false,
+  "criterion_1": false,
+  "criterion_2": true,
+  "criterion_3": true,
+  "recall_current": 0.861729160210722,
+  "recall_candidate": 0.8614812519367834,
+  "recall_diff": -0.0002479082739386129,
+  "bootstrap_interval_low": -0.0041571118686085625,
+  "bootstrap_interval_high": 0.0030368763557484524,
+  "bootstrap_mean_diff": -0.0003176324759838867,
+  "attack_mean_current": 0.5887201735357918,
+  "attack_mean_candidate": 0.60638363805392,
+  "auc_current": 0.9744902212585551,
+  "auc_candidate": 0.974824048701166,
+  "safe_flagged_diff": {
+    "benign_words_in_path": 0.010400000000000003,
+    "benign_words_in_query": 0.007733333333333399,
+    "random_mix": 0.019533333333333416
+  }
+}

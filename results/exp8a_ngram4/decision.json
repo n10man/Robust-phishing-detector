@@ -1,0 +1,25 @@
+{
+  "name": "exp8a",
+  "target_fpr": 0.03650093331070762,
+  "keep": false,
+  "criterion_1_primary": false,
+  "criterion_1_alternative": false,
+  "criterion_1": false,
+  "criterion_2": false,
+  "criterion_3": true,
+  "recall_current": 0.861729160210722,
+  "recall_candidate": 0.848961884102882,
+  "recall_diff": -0.012767276107840009,
+  "bootstrap_interval_low": -0.017925317632475943,
+  "bootstrap_interval_high": -0.008304927176944532,
+  "bootstrap_mean_diff": -0.012887511620700337,
+  "attack_mean_current": 0.5887201735357918,
+  "attack_mean_candidate": 0.5065592397479599,
+  "auc_current": 0.9744902212585551,
+  "auc_candidate": 0.9722746562220985,
+  "safe_flagged_diff": {
+    "benign_words_in_path": -0.0102666666666667,
+    "benign_words_in_query": -0.0026,
+    "random_mix": -0.01853333333333329
+  }
+}

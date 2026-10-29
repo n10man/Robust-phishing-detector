@@ -1,0 +1,25 @@
+{
+  "name": "exp6",
+  "target_fpr": 0.03650093331070762,
+  "keep": false,
+  "criterion_1_primary": false,
+  "criterion_1_alternative": false,
+  "criterion_1": false,
+  "criterion_2": true,
+  "criterion_3": true,
+  "recall_current": 0.861729160210722,
+  "recall_candidate": 0.8629067245119306,
+  "recall_diff": 0.0011775643012086334,
+  "bootstrap_interval_low": -0.002232723892159963,
+  "bootstrap_interval_high": 0.004092035946699782,
+  "bootstrap_mean_diff": 0.000899287263712426,
+  "attack_mean_current": 0.5887201735357918,
+  "attack_mean_candidate": 0.5865922941844851,
+  "auc_current": 0.9744902212585551,
+  "auc_candidate": 0.9750809937638533,
+  "safe_flagged_diff": {
+    "benign_words_in_path": -0.0016666666666666982,
+    "benign_words_in_query": -0.0007333333333332994,
+    "random_mix": -0.015533333333333302
+  }
+}

@@ -1,0 +1,50 @@
+Evaluating on VALIDATION only: 16135 phishing, 58930 safe URLs
+Model: models_v2/gradient_boosting_exp5a.joblib
+Target false-alarm rate: 0.0365  ->  matched threshold: 0.7444
+
+CLEAN VALIDATION METRICS
+  AUC (threshold-free): 0.9752
+  at matched threshold (0.7444): recall 0.8629, precision 0.8662, F1 0.8645, false alarms 2151, missed 2212
+  at 0.5 threshold (0.5000): recall 0.9265, precision 0.7370, F1 0.8210, false alarms 5334, missed 1186
+
+ATTACK FAMILIES (recall = share of phishing caught, higher is better;
+safe_flagged = share of 15000 edited SAFE URLs flagged, lower is better)
+
+               family  recall_matched  recall_at_0.5  safe_flagged_matched
+         none (clean)          0.8629         0.9265                0.0357
+ benign_words_in_path          0.6058         0.7071                0.0393
+benign_words_in_query          0.5738         0.6829                0.0167
+ lookalike_characters          0.8431         0.9161                0.0346
+     extra_subdomains          0.9233         0.9693                0.2332
+      path_shortening          0.8167         0.9055                0.0547
+              padding          0.8220         0.9108                0.1463
+           random_mix          0.6431         0.7522                0.1303
+
+HELD-OUT BARE DOMAINS (safe_flagged: lower is better; phishing_caught: higher is better)
+
+                                    subset  n_safe  n_phishing  safe_flagged_matched  phishing_caught_matched  safe_flagged_0.5  phishing_caught_0.5
+                              all held-out   10000       10000                0.9813                   0.9956            0.9941               0.9994
+TLDs in both classes (>= 20 each; 40 TLDs)    8219        8158                0.9847                   0.9964            0.9966               1.0000
+                        domain length 0-10    2332        1074                0.9858                   0.9981            0.9940               0.9991
+                       domain length 11-15    4666        3417                0.9844                   0.9977            0.9938               1.0000
+                       domain length 16-20    2263        3009                0.9761                   0.9960            0.9956               1.0000
+                      domain length 21-999     739        2500                0.9635                   0.9912            0.9919               0.9980
+all held-out, EXCLUDING brand-list domains    9983        9995                0.9822                   0.9956            0.9942               0.9994
+
+VALIDATION SPLIT BY BARE VERSUS HAS-A-PATH (recall higher is better; false_alarm lower is better)
+
+        subset  n_phishing  n_safe  recall_matched  false_alarm_matched  recall_0.5  false_alarm_0.5
+bare (no path)        2045   13361          0.7408               0.0253      0.8337           0.0712
+    has a path       14090   45569          0.8806               0.0398      0.9400           0.0962
+
+TRANCO SAFE DOMAINS FLAGGED AS PHISHING (lower is better)
+
+               group              form    n  flagged_matched  flagged_at_0.5  n_no_brand  flagged_matched_no_brand  flagged_at_0.5_no_brand
+           top 10000 bare (google.com) 9331           0.9613          0.9820        8854                    0.9701                   0.9825
+           top 10000          with www 9331           0.9997          0.9998        8854                    1.0000                   1.0000
+           top 10000    trailing slash 9331           0.1644          0.3479        8854                    0.1725                   0.3577
+           top 10000  with /index.html 9331           0.3377          0.5808        8854                    0.3480                   0.5882
+random from the rest bare (google.com) 9493           0.9808          0.9935        9482                    0.9810                   0.9935
+random from the rest          with www 9493           1.0000          1.0000        9482                    1.0000                   1.0000
+random from the rest    trailing slash 9493           0.2618          0.4555        9482                    0.2618                   0.4555
+random from the rest  with /index.html 9493           0.4537          0.6966        9482                    0.4537                   0.6967

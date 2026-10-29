@@ -20,7 +20,8 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 from stage2_computer_readable import extract_features
 from attacks import FAMILIES, apply_family, load_benign_words
-from domains import registered_domain, has_path, tld
+from domains import registered_domain, has_path, tld, _icann
+import features_v2 as fv
 
 BASELINE_DIR = "results/baseline_v1"
 THRESHOLD = 0.5       # the v1 cut-off; the matched false-alarm level is taken from it
@@ -49,7 +50,11 @@ parser.add_argument("--exclude-domains-file", default=None,
                     help="text file of registered domains to leave out of the Tranco check")
 parser.add_argument("--split-bare-path", action="store_true",
                     help="also report validation metrics for bare URLs versus URLs with a path")
+parser.add_argument("--save-scores", default=None,
+                    help="write the validation probabilities to this .npz (refuses to overwrite)")
 args = parser.parse_args()
+if args.save_scores and os.path.exists(args.save_scores):
+    raise SystemExit(f"{args.save_scores} already exists; not overwriting.")
 
 for path in (args.val_file, args.train_file, args.bare_heldout_safe, args.bare_heldout_phish,
              args.exclude_domains_file):
@@ -64,16 +69,21 @@ def log(text=""):
 
 model = joblib.load(args.model)
 recipe = joblib.load(args.recipe)
-vec, scaler, num_cols = recipe["vectorizer"], recipe["scaler"], recipe["num_cols"]
+
+# Names of the brand list when the model uses the brand group (Experiment 5): used only to
+# also report held-out and Tranco numbers WITHOUT the brand-list domains.
+brand_set = set(recipe["brand_names"]) if recipe.get("format") == 2 and recipe.get("brand_names") else None
+
+def is_brand(domain):
+    return _icann(str(domain).strip().lower()).domain in brand_set
 
 def score(urls, chunk=20000):
-    """Probability of 'phishing' for each URL, built in chunks to save memory."""
+    """Probability of 'phishing' for each URL, built in chunks to save memory.
+    Features come from features_v2 (old recipes take the exact old code path)."""
     urls = [str(u) for u in urls]
     out = []
     for i in range(0, len(urls), chunk):
-        part = urls[i:i + chunk]
-        feats = pd.DataFrame([extract_features(u) for u in part])[num_cols]
-        X = np.hstack([scaler.transform(feats), vec.transform(part).toarray()])
+        X = fv.featurize(urls[i:i + chunk], recipe)
         out.append(model.predict_proba(X)[:, 1])
     return np.concatenate(out)
 
@@ -165,6 +175,9 @@ if args.bare_heldout_safe and args.bare_heldout_phish:
     for lo, hi in [(0, 10), (11, 15), (16, 20), (21, 999)]:
         rows.append(held_row(f"domain length {lo}-{hi}",
                              (len_s >= lo) & (len_s <= hi), (len_p >= lo) & (len_p <= hi)))
+    if brand_set:
+        rows.append(held_row("all held-out, EXCLUDING brand-list domains",
+                             np.array([not is_brand(u) for u in hs]), np.array([not is_brand(u) for u in hp])))
     held_table = pd.DataFrame(rows)
     log("\nHELD-OUT BARE DOMAINS (safe_flagged: lower is better; phishing_caught: higher is better)\n")
     log(held_table.round(4).to_string(index=False))
@@ -211,9 +224,15 @@ bare_rows = []
 for g, domains in groups.items():
     for form_name, f in forms.items():
         p = score([f(d) for d in domains])
-        bare_rows.append({"group": g, "form": form_name, "n": len(domains),
-                          "flagged_matched": float((p >= thr).mean()),
-                          "flagged_at_0.5": float((p >= THRESHOLD).mean())})
+        row = {"group": g, "form": form_name, "n": len(domains),
+               "flagged_matched": float((p >= thr).mean()),
+               "flagged_at_0.5": float((p >= THRESHOLD).mean())}
+        if brand_set:                                   # also report WITHOUT the brand-list domains
+            keep = np.array([not is_brand(d) for d in domains])
+            row["n_no_brand"] = int(keep.sum())
+            row["flagged_matched_no_brand"] = float((p[keep] >= thr).mean())
+            row["flagged_at_0.5_no_brand"] = float((p[keep] >= THRESHOLD).mean())
+        bare_rows.append(row)
 bare_table = pd.DataFrame(bare_rows)
 log("\nTRANCO SAFE DOMAINS FLAGGED AS PHISHING (lower is better)\n")
 log(bare_table.round(4).to_string(index=False))
@@ -230,4 +249,6 @@ attack_table.to_csv(os.path.join(args.out, "attack_families.csv"), index=False)
 bare_table.to_csv(os.path.join(args.out, "bare_domain.csv"), index=False)
 with open(os.path.join(args.out, "report.txt"), "w") as f:
     f.write("\n".join(lines) + "\n")
+if args.save_scores:
+    np.savez(args.save_scores, p_ph=p_ph, p_sf=p_sf)
 log(f"\nSaved to {args.out}/")

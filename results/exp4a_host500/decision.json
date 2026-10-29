@@ -1,0 +1,25 @@
+{
+  "name": "exp4a",
+  "target_fpr": 0.03650093331070762,
+  "keep": true,
+  "criterion_1_primary": false,
+  "criterion_1_alternative": true,
+  "criterion_1": true,
+  "criterion_2": true,
+  "criterion_3": true,
+  "recall_current": 0.8578246048961884,
+  "recall_candidate": 0.861729160210722,
+  "recall_diff": 0.0039045553145335976,
+  "bootstrap_interval_low": 0.00037031298419580306,
+  "bootstrap_interval_high": 0.008005887821506083,
+  "bootstrap_mean_diff": 0.004335605825844432,
+  "attack_mean_current": 0.5562028716041731,
+  "attack_mean_candidate": 0.5887201735357918,
+  "auc_current": 0.9745262769150773,
+  "auc_candidate": 0.9744902212585551,
+  "safe_flagged_diff": {
+    "benign_words_in_path": 0.0077333333333333,
+    "benign_words_in_query": 6.666666666660034e-05,
+    "random_mix": 0.017199999999999993
+  }
+}
