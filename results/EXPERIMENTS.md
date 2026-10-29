@@ -1085,3 +1085,131 @@ It prints the gate results, the files it will read and write, and then waits for
 **Dry run after the fix** (`PYTHONHASHSEED=0 .venv/bin/python notebooks/final_eval.py --dry-run --dry-run-dir <fresh scratch folder>`): exit 0; all gates passed; **again 82 numbers compared with the saved validation numbers (tolerance 1e-12), 0 differ**; row-count assertions held. Thresholds, metrics and tables are unchanged by the fix (the gate runs only in `--final` mode, which was not run). The positive path of the git gate had already been shown at the previous commit (`d53d8b5`); the pseudo-terminal tests now exercise the terminal prompt itself. The real run is still to be done by the owner.
 - **Commit:** the commit "Chunk 6: fix the terminal gate in final_eval.py (found before any data was read)" (hash in `git log`).
 - **Commit:** pending (not committed until the owner says so)
+
+## Chunk 6 results (final run, done once)
+
+- **How it ran:** the first real launch aborted at the terminal gate before any data was read. The fix was committed in 18c273f. The real run happened once, at 2026-10-30 00:44 (metrics.json time 2026-10-30T00:44:42), with commit 18c273f (metrics.json head 18c273f2005e22de042c02b85833650181c2b00e).
+- **Sealed safe URLs (from metrics.json sealed_facts):** sealed safe URLs: 125,031; of these without a path: 125,031; host equal to its registered domain (bare domains): 123,743. Sealed phishing URLs: 111,959, without a path: 69,953. Labels below are plain labels of the numbers; no interpretation.
+- **Source of every number:** results/final_v2/ (metrics.json and the CSVs). Recall = caught / phishing rows; false-alarm rate = false alarms / safe rows.
+
+**Test split, four systems**
+
+| system | subset | n phishing | n safe | caught (tp) | missed (fn) | false alarms (fp) | safe ok (tn) | phishing unsure | safe unsure | recall | false-alarm rate | precision |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| primary: plain 4a + R1 | all | 16135 | 58930 | 14045 | 2090 | 2051 | 56879 | 0 | 0 | 0.8705 | 0.0348 | 0.8726 |
+| plain 4a | all | 16135 | 58930 | 14044 | 2091 | 2051 | 56879 | 0 | 0 | 0.8704 | 0.0348 | 0.8726 |
+| 8b (secondary) | all | 16135 | 58930 | 14261 | 1874 | 2051 | 56879 | 0 | 0 | 0.8839 | 0.0348 | 0.8743 |
+| second view: primary + unsure | all | 16135 | 58930 | 11150 | 4985 | 387 | 58543 | 3957 | 14283 | 0.6910 | 0.0066 | 0.9665 |
+
+**Test split, bare URLs (no path) versus URLs with a path**
+
+| system | subset | n phishing | n safe | caught (tp) | missed (fn) | false alarms (fp) | safe ok (tn) | phishing unsure | safe unsure | recall | false-alarm rate | precision |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| primary: plain 4a + R1 | bare URLs (no path) | 1933 | 13212 | 1451 | 482 | 287 | 12925 | 0 | 0 | 0.7506 | 0.0217 | 0.8349 |
+| primary: plain 4a + R1 | URLs with a path | 14202 | 45718 | 12594 | 1608 | 1764 | 43954 | 0 | 0 | 0.8868 | 0.0386 | 0.8771 |
+| plain 4a | bare URLs (no path) | 1933 | 13212 | 1451 | 482 | 287 | 12925 | 0 | 0 | 0.7506 | 0.0217 | 0.8349 |
+| plain 4a | URLs with a path | 14202 | 45718 | 12593 | 1609 | 1764 | 43954 | 0 | 0 | 0.8867 | 0.0386 | 0.8771 |
+| 8b (secondary) | bare URLs (no path) | 1933 | 13212 | 1446 | 487 | 302 | 12910 | 0 | 0 | 0.7481 | 0.0229 | 0.8272 |
+| 8b (secondary) | URLs with a path | 14202 | 45718 | 12815 | 1387 | 1749 | 43969 | 0 | 0 | 0.9023 | 0.0383 | 0.8799 |
+| second view: primary + unsure | bare URLs (no path) | 1933 | 13212 | 645 | 1288 | 28 | 13184 | 1182 | 10901 | 0.3337 | 0.0021 | 0.9584 |
+| second view: primary + unsure | URLs with a path | 14202 | 45718 | 10505 | 3697 | 359 | 45359 | 2775 | 3382 | 0.7397 | 0.0079 | 0.9670 |
+
+**Test split, attacks (edited copies; recall = phishing flagged / phishing edited; safe flagged share = safe flagged / safe edited)**
+
+| family | system | n phishing edited | n safe edited | phishing flagged | phishing unsure | phishing safe | safe flagged | safe unsure | safe safe | recall | safe flagged share |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| none (clean) | primary: plain 4a + R1 | 16135 | 15000 | 14045 | 0 | 2090 | 504 | 0 | 14496 | 0.8705 | 0.0336 |
+| none (clean) | plain 4a | 16135 | 15000 | 14044 | 0 | 2091 | 504 | 0 | 14496 | 0.8704 | 0.0336 |
+| none (clean) | 8b (secondary) | 16135 | 15000 | 14261 | 0 | 1874 | 503 | 0 | 14497 | 0.8839 | 0.0335 |
+| none (clean) | second view: primary + unsure | 16135 | 15000 | 11150 | 3957 | 1028 | 77 | 3774 | 11149 | 0.6910 | 0.0051 |
+| benign_words_in_path | primary: plain 4a + R1 | 16135 | 15000 | 9714 | 0 | 6421 | 356 | 0 | 14644 | 0.6020 | 0.0237 |
+| benign_words_in_path | plain 4a | 16135 | 15000 | 9640 | 0 | 6495 | 354 | 0 | 14646 | 0.5975 | 0.0236 |
+| benign_words_in_path | 8b (secondary) | 16135 | 15000 | 8258 | 0 | 7877 | 186 | 0 | 14814 | 0.5118 | 0.0124 |
+| benign_words_in_path | second view: primary + unsure | 16135 | 15000 | 7467 | 3498 | 5170 | 68 | 642 | 14290 | 0.4628 | 0.0045 |
+| benign_words_in_query | primary: plain 4a + R1 | 16135 | 15000 | 9116 | 0 | 7019 | 146 | 0 | 14854 | 0.5650 | 0.0097 |
+| benign_words_in_query | plain 4a | 16135 | 15000 | 9061 | 0 | 7074 | 145 | 0 | 14855 | 0.5616 | 0.0097 |
+| benign_words_in_query | 8b (secondary) | 16135 | 15000 | 8599 | 0 | 7536 | 77 | 0 | 14923 | 0.5329 | 0.0051 |
+| benign_words_in_query | second view: primary + unsure | 16135 | 15000 | 6895 | 3554 | 5686 | 29 | 323 | 14648 | 0.4273 | 0.0019 |
+| lookalike_characters | primary: plain 4a + R1 | 16135 | 15000 | 13748 | 0 | 2387 | 487 | 0 | 14513 | 0.8521 | 0.0325 |
+| lookalike_characters | plain 4a | 16135 | 15000 | 13747 | 0 | 2388 | 487 | 0 | 14513 | 0.8520 | 0.0325 |
+| lookalike_characters | 8b (secondary) | 16135 | 15000 | 13995 | 0 | 2140 | 488 | 0 | 14512 | 0.8674 | 0.0325 |
+| lookalike_characters | second view: primary + unsure | 16135 | 15000 | 10550 | 4382 | 1203 | 71 | 3755 | 11174 | 0.6539 | 0.0047 |
+| extra_subdomains | primary: plain 4a + R1 | 16135 | 15000 | 14593 | 0 | 1542 | 3012 | 0 | 11988 | 0.9044 | 0.2008 |
+| extra_subdomains | plain 4a | 16135 | 15000 | 14592 | 0 | 1543 | 3012 | 0 | 11988 | 0.9044 | 0.2008 |
+| extra_subdomains | 8b (secondary) | 16135 | 15000 | 14743 | 0 | 1392 | 2882 | 0 | 12118 | 0.9137 | 0.1921 |
+| extra_subdomains | second view: primary + unsure | 16135 | 15000 | 12061 | 3284 | 790 | 974 | 4064 | 9962 | 0.7475 | 0.0649 |
+| path_shortening | primary: plain 4a + R1 | 16135 | 15000 | 13353 | 0 | 2782 | 807 | 0 | 14193 | 0.8276 | 0.0538 |
+| path_shortening | plain 4a | 16135 | 15000 | 13353 | 0 | 2782 | 807 | 0 | 14193 | 0.8276 | 0.0538 |
+| path_shortening | 8b (secondary) | 16135 | 15000 | 13616 | 0 | 2519 | 839 | 0 | 14161 | 0.8439 | 0.0559 |
+| path_shortening | second view: primary + unsure | 16135 | 15000 | 10079 | 4612 | 1444 | 160 | 4364 | 10476 | 0.6247 | 0.0107 |
+| padding | primary: plain 4a + R1 | 16135 | 15000 | 13349 | 0 | 2786 | 1991 | 0 | 13009 | 0.8273 | 0.1327 |
+| padding | plain 4a | 16135 | 15000 | 13349 | 0 | 2786 | 1991 | 0 | 13009 | 0.8273 | 0.1327 |
+| padding | 8b (secondary) | 16135 | 15000 | 13154 | 0 | 2981 | 1751 | 0 | 13249 | 0.8152 | 0.1167 |
+| padding | second view: primary + unsure | 16135 | 15000 | 10844 | 3609 | 1682 | 482 | 3052 | 11466 | 0.6721 | 0.0321 |
+| random_mix | primary: plain 4a + R1 | 16135 | 15000 | 10189 | 0 | 5946 | 1624 | 0 | 13376 | 0.6315 | 0.1083 |
+| random_mix | plain 4a | 16135 | 15000 | 10108 | 0 | 6027 | 1622 | 0 | 13378 | 0.6265 | 0.1081 |
+| random_mix | 8b (secondary) | 16135 | 15000 | 9032 | 0 | 7103 | 1216 | 0 | 13784 | 0.5598 | 0.0811 |
+| random_mix | second view: primary + unsure | 16135 | 15000 | 7687 | 3781 | 4667 | 486 | 2111 | 12403 | 0.4764 | 0.0324 |
+
+**Sealed set, four systems, overall**
+
+| system | subset | n phishing | n safe | caught (tp) | missed (fn) | false alarms (fp) | safe ok (tn) | phishing unsure | safe unsure | recall | false-alarm rate | precision |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| primary: plain 4a + R1 | all | 111959 | 125031 | 100129 | 11830 | 120476 | 4555 | 0 | 0 | 0.8943 | 0.9636 | 0.4539 |
+| plain 4a | all | 111959 | 125031 | 100125 | 11834 | 120476 | 4555 | 0 | 0 | 0.8943 | 0.9636 | 0.4539 |
+| 8b (secondary) | all | 111959 | 125031 | 101769 | 10190 | 122048 | 2983 | 0 | 0 | 0.9090 | 0.9761 | 0.4547 |
+| second view: primary + unsure | all | 111959 | 125031 | 53529 | 58430 | 856 | 124175 | 52448 | 124080 | 0.4781 | 0.0068 | 0.9843 |
+
+**Sealed set, bare URLs (no path) versus URLs with a path**
+
+| system | subset | n phishing | n safe | caught (tp) | missed (fn) | false alarms (fp) | safe ok (tn) | phishing unsure | safe unsure | recall | false-alarm rate | precision |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| primary: plain 4a + R1 | bare URLs (no path) | 69953 | 125031 | 63684 | 6269 | 120476 | 4555 | 0 | 0 | 0.9104 | 0.9636 | 0.3458 |
+| primary: plain 4a + R1 | URLs with a path | 42006 | 0 | 36445 | 5561 | 0 | 0 | 0 | 0 | 0.8676 | too few to read | 1.0000 |
+| plain 4a | bare URLs (no path) | 69953 | 125031 | 63684 | 6269 | 120476 | 4555 | 0 | 0 | 0.9104 | 0.9636 | 0.3458 |
+| plain 4a | URLs with a path | 42006 | 0 | 36441 | 5565 | 0 | 0 | 0 | 0 | 0.8675 | too few to read | 1.0000 |
+| 8b (secondary) | bare URLs (no path) | 69953 | 125031 | 64712 | 5241 | 122048 | 2983 | 0 | 0 | 0.9251 | 0.9761 | 0.3465 |
+| 8b (secondary) | URLs with a path | 42006 | 0 | 37057 | 4949 | 0 | 0 | 0 | 0 | 0.8822 | too few to read | 1.0000 |
+| second view: primary + unsure | bare URLs (no path) | 69953 | 125031 | 23605 | 46348 | 856 | 124175 | 43808 | 124080 | 0.3374 | 0.0068 | 0.9650 |
+| second view: primary + unsure | URLs with a path | 42006 | 0 | 29924 | 12082 | 0 | 0 | 8640 | 0 | 0.7124 | too few to read | 1.0000 |
+
+**Sealed set, per source**
+
+| system | subset | n phishing | n safe | caught (tp) | missed (fn) | false alarms (fp) | safe ok (tn) | phishing unsure | safe unsure | recall | false-alarm rate | precision |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| primary: plain 4a + R1 | source=feed | 38860 | 0 | 35895 | 2965 | 0 | 0 | 0 | 0 | 0.9237 | too few to read | 1.0000 |
+| primary: plain 4a + R1 | source=phiusiil | 73099 | 125031 | 64234 | 8865 | 120476 | 4555 | 0 | 0 | 0.8787 | 0.9636 | 0.3478 |
+| plain 4a | source=feed | 38860 | 0 | 35891 | 2969 | 0 | 0 | 0 | 0 | 0.9236 | too few to read | 1.0000 |
+| plain 4a | source=phiusiil | 73099 | 125031 | 64234 | 8865 | 120476 | 4555 | 0 | 0 | 0.8787 | 0.9636 | 0.3478 |
+| 8b (secondary) | source=feed | 38860 | 0 | 36315 | 2545 | 0 | 0 | 0 | 0 | 0.9345 | too few to read | 1.0000 |
+| 8b (secondary) | source=phiusiil | 73099 | 125031 | 65454 | 7645 | 122048 | 2983 | 0 | 0 | 0.8954 | 0.9761 | 0.3491 |
+| second view: primary + unsure | source=feed | 38860 | 0 | 26758 | 12102 | 0 | 0 | 10202 | 0 | 0.6886 | too few to read | 1.0000 |
+| second view: primary + unsure | source=phiusiil | 73099 | 125031 | 26771 | 46328 | 856 | 124175 | 42246 | 124080 | 0.3662 | 0.0068 | 0.9690 |
+
+**Second view (primary + unsure), test split and sealed set**
+
+**Second view, test split**
+
+| system | subset | n phishing | n safe | caught (tp) | missed (fn) | false alarms (fp) | safe ok (tn) | phishing unsure | safe unsure | recall | false-alarm rate | precision |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| second view: primary + unsure | all | 16135 | 58930 | 11150 | 4985 | 387 | 58543 | 3957 | 14283 | 0.6910 | 0.0066 | 0.9665 |
+| second view: primary + unsure | bare URLs (no path) | 1933 | 13212 | 645 | 1288 | 28 | 13184 | 1182 | 10901 | 0.3337 | 0.0021 | 0.9584 |
+| second view: primary + unsure | URLs with a path | 14202 | 45718 | 10505 | 3697 | 359 | 45359 | 2775 | 3382 | 0.7397 | 0.0079 | 0.9670 |
+
+**Second view, sealed set**
+
+| system | subset | n phishing | n safe | caught (tp) | missed (fn) | false alarms (fp) | safe ok (tn) | phishing unsure | safe unsure | recall | false-alarm rate | precision |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| second view: primary + unsure | all | 111959 | 125031 | 53529 | 58430 | 856 | 124175 | 52448 | 124080 | 0.4781 | 0.0068 | 0.9843 |
+| second view: primary + unsure | bare URLs (no path) | 69953 | 125031 | 23605 | 46348 | 856 | 124175 | 43808 | 124080 | 0.3374 | 0.0068 | 0.9650 |
+| second view: primary + unsure | URLs with a path | 42006 | 0 | 29924 | 12082 | 0 | 0 | 8640 | 0 | 0.7124 | too few to read | 1.0000 |
+| second view: primary + unsure | source=feed | 38860 | 0 | 26758 | 12102 | 0 | 0 | 10202 | 0 | 0.6886 | too few to read | 1.0000 |
+| second view: primary + unsure | source=phiusiil | 73099 | 125031 | 26771 | 46328 | 856 | 124175 | 42246 | 124080 | 0.3662 | 0.0068 | 0.9690 |
+
+**Hypotheses H1 to H5 (text as written before the run, EXPERIMENTS.md lines 1033-1037; numbers from metrics.json hypothesis_numbers and the CSVs)**
+
+- **H1: yes.** primary test recall 0.8705 vs validation 0.8617 (difference +0.88 pt; within 3 pt: True); test false-alarm rate 0.0348 vs 0.0365 (difference -0.17 pt; within 1.5 pt: True).
+- **H2: yes.** Sealed false-alarm rate 0.9636 (primary) and 0.9636 (plain 4a), 120476 false alarms of 125031 safe rows; precision 0.4539 (primary), 0.4539 (plain 4a); recall 0.8943 (primary), 0.8943 (plain 4a).
+- **H3: yes (recall differs by source).** sealed recall by source, primary: plain 4a + R1: source=feed: recall 0.9237004632012352 (phishing rows 38860); source=phiusiil: recall 0.8787261111643114 (phishing rows 73099) Plain 4a: source=feed: recall 0.9235975295934122 (phishing rows 38860); source=phiusiil: recall 0.8787261111643114 (phishing rows 73099) 8b: source=feed: recall 0.9345084920226454 (phishing rows 38860); source=phiusiil: recall 0.8954158059617778 (phishing rows 73099)
+- **H4: yes.** sealed safe URLs in the second view: unsure 124080 of 125031 (share 0.9923938863161936), phishing 856, safe 95.
+- **H5: no (the first half holds, the second does not hold in every family).** Clean test, 4a vs 8b: recall 0.8704059497985746 vs 0.8838549736597459; false alarms 0.03480400475139997 vs 0.03480400475139997; AUC 0.9761184160604849 vs 0.9785051899879006. Attack recall, 8b vs plain 4a, per family: benign_words_in_path 0.5118 vs 0.5975; benign_words_in_query 0.5329 vs 0.5616; lookalike_characters 0.8674 vs 0.8520; extra_subdomains 0.9137 vs 0.9044; path_shortening 0.8439 vs 0.8276; padding 0.8152 vs 0.8273; random_mix 0.5598 vs 0.6265. 8b lower in 4 of 7 families (benign_words_in_path, benign_words_in_query, padding, random_mix); 8b higher in 3 (lookalike_characters, extra_subdomains, path_shortening). plain 4a: recall under path / query / mix words 0.5975 / 0.5616 / 0.6265, mean 0.5952. 8b (secondary): recall under path / query / mix words 0.5118 / 0.5329 / 0.5598, mean 0.5348.

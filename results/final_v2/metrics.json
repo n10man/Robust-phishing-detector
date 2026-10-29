@@ -1,0 +1,481 @@
+{
+ "mode": "final",
+ "time": "2026-10-30T00:44:42",
+ "head": "18c273f2005e22de042c02b85833650181c2b00e",
+ "script_sha256": "e2c502aa9ac4cb7ad193308c3cfa2a05339169fdda9a8ef3b182f40e06f2953e",
+ "config_sha256": "000b486e1555d25e1001fede0402f3931309c04756bed7eafb636477d3bebe4e",
+ "hashes_checked": {
+  "4a model": "830bfb7c2bbac7123bf499dd691657b9a88bc93d80498da80bdf928fe7f64bba",
+  "4a recipe": "98f435840ded023954d754a579101afc35fe391510b4c9fb6f56dcb427cbcc84",
+  "8b model": "7bad10720b276efd3cb0e24453b6ca54ee6d45d7d6e414194a5d0ccbd98dc9ff",
+  "8b recipe": "39051eecbed1ab42d29433cf0da4306702cfb76e1a29ae213bcb98672746777d",
+  "notebooks/defence_layers.py": "668ef53eb6f149c435d3ef8361e6643a670ab5a37ea7b933757fa0aad2ae3829",
+  "notebooks/attacks.py": "af290733ed0191fe474634cd0b6954c44e6a3fd161cf5e03a7a7c1d5e46cf628"
+ },
+ "integrity": [
+  {
+   "item": "test",
+   "rows_read": 75065,
+   "urls": 75065,
+   "labels": 75065,
+   "no_path_flags": 75065,
+   "bare_route_flags": 75065,
+   "rule_rows": 75065
+  },
+  {
+   "item": "sealed",
+   "rows_read": 236990,
+   "urls": 236990,
+   "labels": 236990,
+   "no_path_flags": 236990,
+   "bare_route_flags": 236990,
+   "rule_rows": 236990,
+   "sources": 236990
+  },
+  {
+   "item": "test: scores",
+   "rows_read": 75065,
+   "scores_4a": 75065,
+   "scores_8b": 75065
+  },
+  {
+   "item": "test: verdicts",
+   "rows_read": 75065,
+   "primary: plain 4a + R1": 75065,
+   "plain 4a": 75065,
+   "8b (secondary)": 75065,
+   "second view: primary + unsure": 75065
+  },
+  {
+   "item": "sealed: scores",
+   "rows_read": 236990,
+   "scores_4a": 236990,
+   "scores_8b": 236990
+  },
+  {
+   "item": "sealed: verdicts",
+   "rows_read": 236990,
+   "primary: plain 4a + R1": 236990,
+   "plain 4a": 236990,
+   "8b (secondary)": 236990,
+   "second view: primary + unsure": 236990
+  },
+  {
+   "item": "attack none (clean) (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack none (clean) (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack none (clean) (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack none (clean) (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack none (clean) (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack none (clean) (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  },
+  {
+   "item": "attack benign_words_in_path (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack benign_words_in_path (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack benign_words_in_path (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack benign_words_in_path (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack benign_words_in_path (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack benign_words_in_path (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  },
+  {
+   "item": "attack benign_words_in_query (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack benign_words_in_query (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack benign_words_in_query (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack benign_words_in_query (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack benign_words_in_query (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack benign_words_in_query (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  },
+  {
+   "item": "attack lookalike_characters (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack lookalike_characters (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack lookalike_characters (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack lookalike_characters (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack lookalike_characters (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack lookalike_characters (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  },
+  {
+   "item": "attack extra_subdomains (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack extra_subdomains (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack extra_subdomains (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack extra_subdomains (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack extra_subdomains (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack extra_subdomains (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  },
+  {
+   "item": "attack path_shortening (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack path_shortening (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack path_shortening (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack path_shortening (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack path_shortening (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack path_shortening (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  },
+  {
+   "item": "attack padding (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack padding (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack padding (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack padding (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack padding (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack padding (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  },
+  {
+   "item": "attack random_mix (phish)",
+   "rows_read": 16135,
+   "urls": 16135,
+   "labels": 16135,
+   "no_path_flags": 16135,
+   "bare_route_flags": 16135,
+   "rule_rows": 16135
+  },
+  {
+   "item": "attack random_mix (phish): scores",
+   "rows_read": 16135,
+   "scores_4a": 16135,
+   "scores_8b": 16135
+  },
+  {
+   "item": "attack random_mix (phish): verdicts",
+   "rows_read": 16135,
+   "primary: plain 4a + R1": 16135,
+   "plain 4a": 16135,
+   "8b (secondary)": 16135,
+   "second view: primary + unsure": 16135
+  },
+  {
+   "item": "attack random_mix (safe)",
+   "rows_read": 15000,
+   "urls": 15000,
+   "labels": 15000,
+   "no_path_flags": 15000,
+   "bare_route_flags": 15000,
+   "rule_rows": 15000
+  },
+  {
+   "item": "attack random_mix (safe): scores",
+   "rows_read": 15000,
+   "scores_4a": 15000,
+   "scores_8b": 15000
+  },
+  {
+   "item": "attack random_mix (safe): verdicts",
+   "rows_read": 15000,
+   "primary: plain 4a + R1": 15000,
+   "plain 4a": 15000,
+   "8b (secondary)": 15000,
+   "second view: primary + unsure": 15000
+  }
+ ],
+ "thresholds_from_config": {
+  "primary": {
+   "threshold": 0.7402642772824645,
+   "guard": null,
+   "rules": [
+    "R1"
+   ],
+   "window_width": null,
+   "bare_route": false
+  },
+  "plain4a": {
+   "threshold": 0.7402642772824645,
+   "guard": null,
+   "rules": [],
+   "window_width": null,
+   "bare_route": false
+  },
+  "plain8b": {
+   "threshold": 0.7273514803668696,
+   "guard": null,
+   "rules": [],
+   "window_width": null,
+   "bare_route": false
+  },
+  "second": {
+   "threshold": 0.7402642772824645,
+   "guard": null,
+   "rules": [
+    "R1"
+   ],
+   "window_width": 0.1916036773986187,
+   "bare_route": true
+  }
+ },
+ "target_false_alarm_rate": 0.03650093331070762,
+ "hypothesis_numbers": [
+  "H1: primary test recall 0.8705 vs validation 0.8617 (difference +0.88 pt; within 3 pt: True); test false-alarm rate 0.0348 vs 0.0365 (difference -0.17 pt; within 1.5 pt: True).",
+  "H2: sealed, plain 4a: false-alarm rate 0.96356903487935 (fp 120476 of 125031 safe), precision 0.4538737358398194, recall 0.8943005921810663.",
+  "H2: sealed, primary: plain 4a + R1: false-alarm rate 0.96356903487935 (fp 120476 of 125031 safe), precision 0.4538836381768319, recall 0.8943363195455479.",
+  "H3: sealed recall by source, primary: plain 4a + R1: source=feed: recall 0.9237004632012352 (phishing rows 38860); source=phiusiil: recall 0.8787261111643114 (phishing rows 73099)",
+  "H3: sealed recall by source, plain 4a: source=feed: recall 0.9235975295934122 (phishing rows 38860); source=phiusiil: recall 0.8787261111643114 (phishing rows 73099)",
+  "H3: sealed recall by source, 8b (secondary): source=feed: recall 0.9345084920226454 (phishing rows 38860); source=phiusiil: recall 0.8954158059617778 (phishing rows 73099)",
+  "H4: sealed safe URLs in the second view: unsure 124080 of 125031 (share 0.9923938863161936), phishing 856, safe 95.",
+  "H5: clean test, 4a vs 8b: recall 0.8704059497985746 vs 0.8838549736597459; false alarms 0.03480400475139997 vs 0.03480400475139997; AUC 0.9761184160604849 vs 0.9785051899879006.",
+  "H5: plain 4a: recall under path / query / mix words 0.5975 / 0.5616 / 0.6265, mean 0.5952.",
+  "H5: 8b (secondary): recall under path / query / mix words 0.5118 / 0.5329 / 0.5598, mean 0.5348."
+ ],
+ "dry_run_reproduction": null,
+ "sealed_facts": "sealed safe URLs: 125,031; of these without a path: 125,031; host equal to its registered domain (bare domains): 123,743. Sealed phishing URLs: 111,959, without a path: 69,953."
+}

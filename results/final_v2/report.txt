@@ -1,0 +1,183 @@
+FINAL EVALUATION REPORT (final)  2026-10-30T00:44:42
+git HEAD 18c273f2005e22de042c02b85833650181c2b00e; script SHA-256 e2c502aa9ac4cb7ad193308c3cfa2a05339169fdda9a8ef3b182f40e06f2953e; config SHA-256 000b486e1555d25e1001fede0402f3931309c04756bed7eafb636477d3bebe4e
+Counts are always given. A rate whose denominator is under 50 rows is shown as 'too few to read'.
+In the second view, fn and tn count 'unsure' as not flagged; phishing_unsure / phishing_safe / safe_unsure / safe_safe split them.
+
+ROW COUNTS (rows read = urls = labels = scores = verdicts, or the run aborts):
+  test: rows read 75,065; all equal to it: urls=75,065, labels=75,065, no_path_flags=75,065, bare_route_flags=75,065, rule_rows=75,065
+  sealed: rows read 236,990; all equal to it: urls=236,990, labels=236,990, no_path_flags=236,990, bare_route_flags=236,990, rule_rows=236,990, sources=236,990
+  test: scores: rows read 75,065; all equal to it: scores_4a=75,065, scores_8b=75,065
+  test: verdicts: rows read 75,065; all equal to it: primary: plain 4a + R1=75,065, plain 4a=75,065, 8b (secondary)=75,065, second view: primary + unsure=75,065
+  sealed: scores: rows read 236,990; all equal to it: scores_4a=236,990, scores_8b=236,990
+  sealed: verdicts: rows read 236,990; all equal to it: primary: plain 4a + R1=236,990, plain 4a=236,990, 8b (secondary)=236,990, second view: primary + unsure=236,990
+  attack none (clean) (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack none (clean) (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack none (clean) (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack none (clean) (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack none (clean) (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack none (clean) (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+  attack benign_words_in_path (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack benign_words_in_path (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack benign_words_in_path (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack benign_words_in_path (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack benign_words_in_path (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack benign_words_in_path (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+  attack benign_words_in_query (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack benign_words_in_query (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack benign_words_in_query (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack benign_words_in_query (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack benign_words_in_query (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack benign_words_in_query (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+  attack lookalike_characters (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack lookalike_characters (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack lookalike_characters (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack lookalike_characters (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack lookalike_characters (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack lookalike_characters (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+  attack extra_subdomains (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack extra_subdomains (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack extra_subdomains (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack extra_subdomains (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack extra_subdomains (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack extra_subdomains (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+  attack path_shortening (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack path_shortening (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack path_shortening (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack path_shortening (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack path_shortening (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack path_shortening (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+  attack padding (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack padding (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack padding (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack padding (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack padding (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack padding (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+  attack random_mix (phish): rows read 16,135; all equal to it: urls=16,135, labels=16,135, no_path_flags=16,135, bare_route_flags=16,135, rule_rows=16,135
+  attack random_mix (phish): scores: rows read 16,135; all equal to it: scores_4a=16,135, scores_8b=16,135
+  attack random_mix (phish): verdicts: rows read 16,135; all equal to it: primary: plain 4a + R1=16,135, plain 4a=16,135, 8b (secondary)=16,135, second view: primary + unsure=16,135
+  attack random_mix (safe): rows read 15,000; all equal to it: urls=15,000, labels=15,000, no_path_flags=15,000, bare_route_flags=15,000, rule_rows=15,000
+  attack random_mix (safe): scores: rows read 15,000; all equal to it: scores_4a=15,000, scores_8b=15,000
+  attack random_mix (safe): verdicts: rows read 15,000; all equal to it: primary: plain 4a + R1=15,000, plain 4a=15,000, 8b (secondary)=15,000, second view: primary + unsure=15,000
+
+=== TEST SPLIT: all rows, frozen thresholds
+                       system  n_phishing  n_safe    tp   fn   fp    tn recall recall_ci_lo recall_ci_hi false_alarm false_alarm_ci_lo false_alarm_ci_hi precision precision_ci_lo precision_ci_hi     f1    auc
+       primary: plain 4a + R1       16135   58930 14045 2090 2051 56879 0.8705       0.8652       0.8756      0.0348            0.0334            0.0363    0.8726          0.8673          0.8776 0.8715 0.9761
+                     plain 4a       16135   58930 14044 2091 2051 56879 0.8704       0.8651       0.8755      0.0348            0.0334            0.0363    0.8726          0.8673          0.8776 0.8715 0.9761
+               8b (secondary)       16135   58930 14261 1874 2051 56879 0.8839       0.8788       0.8887      0.0348            0.0334            0.0363    0.8743          0.8691          0.8793 0.8790 0.9785
+second view: primary + unsure       16135   58930 11150 4985  387 58543 0.6910       0.6839       0.6981      0.0066            0.0059            0.0073    0.9665          0.9630          0.9696 0.8059    n/a
+
+=== TEST SPLIT: bare URLs (no path) versus URLs with a path
+                       system              subset  n_phishing  n_safe    tp   fp recall false_alarm precision
+       primary: plain 4a + R1 bare URLs (no path)        1933   13212  1451  287 0.7506      0.0217    0.8349
+       primary: plain 4a + R1    URLs with a path       14202   45718 12594 1764 0.8868      0.0386    0.8771
+                     plain 4a bare URLs (no path)        1933   13212  1451  287 0.7506      0.0217    0.8349
+                     plain 4a    URLs with a path       14202   45718 12593 1764 0.8867      0.0386    0.8771
+               8b (secondary) bare URLs (no path)        1933   13212  1446  302 0.7481      0.0229    0.8272
+               8b (secondary)    URLs with a path       14202   45718 12815 1749 0.9023      0.0383    0.8799
+second view: primary + unsure bare URLs (no path)        1933   13212   645   28 0.3337      0.0021    0.9584
+second view: primary + unsure    URLs with a path       14202   45718 10505  359 0.7397      0.0079    0.9670
+
+=== TEST SPLIT: second view (primary + unsure), all rows and subsets
+             subset  n_phishing  n_safe    tp  phishing_unsure  phishing_safe  fp  safe_unsure  safe_safe coverage recall_among_decided false_alarm_among_decided recall_phishing_or_unsure
+                all       16135   58930 11150             3957           1028 387        14283      44260   0.7570               0.9156                    0.0087                    0.9363
+bare URLs (no path)        1933   13212   645             1182            106  28        10901       2283   0.2022               0.8589                    0.0121                    0.9452
+   URLs with a path       14202   45718 10505             2775            922 359         3382      41977   0.8972               0.9193                    0.0085                    0.9351
+
+=== SEALED SET: all rows, frozen thresholds
+                       system  n_phishing  n_safe     tp    fn     fp     tn recall recall_ci_lo recall_ci_hi false_alarm false_alarm_ci_lo false_alarm_ci_hi precision precision_ci_lo precision_ci_hi     f1    auc
+       primary: plain 4a + R1      111959  125031 100129 11830 120476   4555 0.8943       0.8925       0.8961      0.9636            0.9625            0.9646    0.4539          0.4518          0.4560 0.6022 0.6338
+                     plain 4a      111959  125031 100125 11834 120476   4555 0.8943       0.8925       0.8961      0.9636            0.9625            0.9646    0.4539          0.4518          0.4560 0.6021 0.6338
+               8b (secondary)      111959  125031 101769 10190 122048   2983 0.9090       0.9073       0.9107      0.9761            0.9753            0.9770    0.4547          0.4526          0.4568 0.6062 0.6445
+second view: primary + unsure      111959  125031  53529 58430    856 124175 0.4781       0.4752       0.4810      0.0068            0.0064            0.0073    0.9843          0.9832          0.9853 0.6436    n/a
+
+=== SEALED SET: bare URLs (no path) versus URLs with a path
+                       system              subset  n_phishing  n_safe    tp     fp recall     false_alarm precision
+       primary: plain 4a + R1 bare URLs (no path)       69953  125031 63684 120476 0.9104          0.9636    0.3458
+       primary: plain 4a + R1    URLs with a path       42006       0 36445      0 0.8676 too few to read    1.0000
+                     plain 4a bare URLs (no path)       69953  125031 63684 120476 0.9104          0.9636    0.3458
+                     plain 4a    URLs with a path       42006       0 36441      0 0.8675 too few to read    1.0000
+               8b (secondary) bare URLs (no path)       69953  125031 64712 122048 0.9251          0.9761    0.3465
+               8b (secondary)    URLs with a path       42006       0 37057      0 0.8822 too few to read    1.0000
+second view: primary + unsure bare URLs (no path)       69953  125031 23605    856 0.3374          0.0068    0.9650
+second view: primary + unsure    URLs with a path       42006       0 29924      0 0.7124 too few to read    1.0000
+
+=== SEALED SET: per source
+                       system          subset  n_phishing  n_safe    tp     fp recall     false_alarm precision
+       primary: plain 4a + R1     source=feed       38860       0 35895      0 0.9237 too few to read    1.0000
+       primary: plain 4a + R1 source=phiusiil       73099  125031 64234 120476 0.8787          0.9636    0.3478
+                     plain 4a     source=feed       38860       0 35891      0 0.9236 too few to read    1.0000
+                     plain 4a source=phiusiil       73099  125031 64234 120476 0.8787          0.9636    0.3478
+               8b (secondary)     source=feed       38860       0 36315      0 0.9345 too few to read    1.0000
+               8b (secondary) source=phiusiil       73099  125031 65454 122048 0.8954          0.9761    0.3491
+second view: primary + unsure     source=feed       38860       0 26758      0 0.6886 too few to read    1.0000
+second view: primary + unsure source=phiusiil       73099  125031 26771    856 0.3662          0.0068    0.9690
+
+=== SEALED SET: second view (primary + unsure), all rows and subsets
+             subset  n_phishing  n_safe    tp  phishing_unsure  phishing_safe  fp  safe_unsure  safe_safe coverage recall_among_decided false_alarm_among_decided recall_phishing_or_unsure
+                all      111959  125031 53529            52448           5982 856       124080         95   0.2551               0.8995                    0.9001                    0.9466
+bare URLs (no path)       69953  125031 23605            43808           2540 856       124080         95   0.1390               0.9028                    0.9001                    0.9637
+   URLs with a path       42006       0 29924             8640           3442   0            0          0   0.7943               0.8968           too few to read                    0.9181
+        source=feed       38860       0 26758            10202           1900   0            0          0   0.7375               0.9337           too few to read                    0.9511
+    source=phiusiil       73099  125031 26771            42246           4082 856       124080         95   0.1605               0.8677                    0.9001                    0.9442
+
+=== TEST SPLIT: attack families (recall = edited phishing flagged; safe_flagged_share = edited SAFE URLs flagged; same edits, word list and settings as evaluate.py)
+               family                        system  n_phishing_edited  phishing_flagged recall  safe_flagged safe_flagged_share
+         none (clean)        primary: plain 4a + R1              16135             14045 0.8705           504             0.0336
+         none (clean)                      plain 4a              16135             14044 0.8704           504             0.0336
+         none (clean)                8b (secondary)              16135             14261 0.8839           503             0.0335
+         none (clean) second view: primary + unsure              16135             11150 0.6910            77             0.0051
+ benign_words_in_path        primary: plain 4a + R1              16135              9714 0.6020           356             0.0237
+ benign_words_in_path                      plain 4a              16135              9640 0.5975           354             0.0236
+ benign_words_in_path                8b (secondary)              16135              8258 0.5118           186             0.0124
+ benign_words_in_path second view: primary + unsure              16135              7467 0.4628            68             0.0045
+benign_words_in_query        primary: plain 4a + R1              16135              9116 0.5650           146             0.0097
+benign_words_in_query                      plain 4a              16135              9061 0.5616           145             0.0097
+benign_words_in_query                8b (secondary)              16135              8599 0.5329            77             0.0051
+benign_words_in_query second view: primary + unsure              16135              6895 0.4273            29             0.0019
+ lookalike_characters        primary: plain 4a + R1              16135             13748 0.8521           487             0.0325
+ lookalike_characters                      plain 4a              16135             13747 0.8520           487             0.0325
+ lookalike_characters                8b (secondary)              16135             13995 0.8674           488             0.0325
+ lookalike_characters second view: primary + unsure              16135             10550 0.6539            71             0.0047
+     extra_subdomains        primary: plain 4a + R1              16135             14593 0.9044          3012             0.2008
+     extra_subdomains                      plain 4a              16135             14592 0.9044          3012             0.2008
+     extra_subdomains                8b (secondary)              16135             14743 0.9137          2882             0.1921
+     extra_subdomains second view: primary + unsure              16135             12061 0.7475           974             0.0649
+      path_shortening        primary: plain 4a + R1              16135             13353 0.8276           807             0.0538
+      path_shortening                      plain 4a              16135             13353 0.8276           807             0.0538
+      path_shortening                8b (secondary)              16135             13616 0.8439           839             0.0559
+      path_shortening second view: primary + unsure              16135             10079 0.6247           160             0.0107
+              padding        primary: plain 4a + R1              16135             13349 0.8273          1991             0.1327
+              padding                      plain 4a              16135             13349 0.8273          1991             0.1327
+              padding                8b (secondary)              16135             13154 0.8152          1751             0.1167
+              padding second view: primary + unsure              16135             10844 0.6721           482             0.0321
+           random_mix        primary: plain 4a + R1              16135             10189 0.6315          1624             0.1083
+           random_mix                      plain 4a              16135             10108 0.6265          1622             0.1081
+           random_mix                8b (secondary)              16135              9032 0.5598          1216             0.0811
+           random_mix second view: primary + unsure              16135              7687 0.4764           486             0.0324
+
+=== TEST SPLIT: second view under the attacks (verdict shares of edited phishing / edited safe)
+               family recall phishing_share_unsure phishing_share_safe safe_flagged_share safe_share_unsure
+         none (clean) 0.6910                0.2452              0.0637             0.0051            0.2516
+ benign_words_in_path 0.4628                0.2168              0.3204             0.0045            0.0428
+benign_words_in_query 0.4273                0.2203              0.3524             0.0019            0.0215
+ lookalike_characters 0.6539                0.2716              0.0746             0.0047            0.2503
+     extra_subdomains 0.7475                0.2035              0.0490             0.0649            0.2709
+      path_shortening 0.6247                0.2858              0.0895             0.0107            0.2909
+              padding 0.6721                0.2237              0.1042             0.0321            0.2035
+           random_mix 0.4764                0.2343              0.2892             0.0324            0.1407
+
+=== SEALED SET: what its safe URLs are
+sealed safe URLs: 125,031; of these without a path: 125,031; host equal to its registered domain (bare domains): 123,743. Sealed phishing URLs: 111,959, without a path: 69,953.
+The sealed set cannot test safe URLs that have a path. Its false-alarm rate measures the known bare-domain flaw, not new behaviour.
+
+=== NUMBERS FOR THE HYPOTHESES LOGGED BEFORE THE RUN (the verdicts are for the owner)
+H1: primary test recall 0.8705 vs validation 0.8617 (difference +0.88 pt; within 3 pt: True); test false-alarm rate 0.0348 vs 0.0365 (difference -0.17 pt; within 1.5 pt: True).
+H2: sealed, plain 4a: false-alarm rate 0.96356903487935 (fp 120476 of 125031 safe), precision 0.4538737358398194, recall 0.8943005921810663.
+H2: sealed, primary: plain 4a + R1: false-alarm rate 0.96356903487935 (fp 120476 of 125031 safe), precision 0.4538836381768319, recall 0.8943363195455479.
+H3: sealed recall by source, primary: plain 4a + R1: source=feed: recall 0.9237004632012352 (phishing rows 38860); source=phiusiil: recall 0.8787261111643114 (phishing rows 73099)
+H3: sealed recall by source, plain 4a: source=feed: recall 0.9235975295934122 (phishing rows 38860); source=phiusiil: recall 0.8787261111643114 (phishing rows 73099)
+H3: sealed recall by source, 8b (secondary): source=feed: recall 0.9345084920226454 (phishing rows 38860); source=phiusiil: recall 0.8954158059617778 (phishing rows 73099)
+H4: sealed safe URLs in the second view: unsure 124080 of 125031 (share 0.9923938863161936), phishing 856, safe 95.
+H5: clean test, 4a vs 8b: recall 0.8704059497985746 vs 0.8838549736597459; false alarms 0.03480400475139997 vs 0.03480400475139997; AUC 0.9761184160604849 vs 0.9785051899879006.
+H5: plain 4a: recall under path / query / mix words 0.5975 / 0.5616 / 0.6265, mean 0.5952.
+H5: 8b (secondary): recall under path / query / mix words 0.5118 / 0.5329 / 0.5598, mean 0.5348.
