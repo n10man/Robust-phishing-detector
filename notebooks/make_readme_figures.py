@@ -117,11 +117,12 @@ def fig_backdoor():
             print(f"    K={k} {kind}: mean over seeds = {mean:.4f}")
     ax.set_xticks(range(len(ks)))
     ax.set_xticklabels([f"{int(k):,} added rows" for k in ks])
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, 1.08)  # headroom so the seed dots at 1.0 are not cut off
+    ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])  # tick labels stay 0.0 to 1.0
     ax.set_ylabel("Share of normally caught phishing that is now missed")
     ax.set_xlabel("Poisoned training rows added (labelled safe)")
     ax.set_title("Backdoor: missed phishing after adding the trigger vs a control string\nBar = mean over seeds, dot = one seed", fontsize=11)
-    ax.legend(loc="center left", fontsize=9)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=2, frameon=False, fontsize=9)  # below the plot, one row
     ax.spines[["top", "right"]].set_visible(False)
     fig.text(0.01, 0.01, f"Source: results/exp9c_summary_trigger.csv. Base: {data[ks[0]]['n_C']} validation phishing URLs the clean model catches.",
              fontsize=7, color=GREY)
