@@ -207,25 +207,23 @@ Tested on macOS with Python 3.14.5. Nothing else was tested.
 **1. Set up**
 
 ```bash
-git clone --branch v2 <repo-address> repro_test
-cd repro_test
+git clone https://github.com/n10man/Robust-phishing-detector.git
+cd Robust-phishing-detector
 python3.14 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-I ran the clone from a local path, made the environment with `/usr/local/bin/python3.14`, and called `.venv/bin/python` directly instead of activating it. Making the environment took about 1 second and the install about 9 seconds. `requirements.txt` must be committed before this works. In my test it was not in the clone, so I copied it in.
+In my test, making the environment took about 1 second and the install about 9 seconds.
 
 **2. Download the data (not in the repo)**
 
-I copied these two files from my own `data/` folder. I did not download them, so the download pages are not checked.
+Create a `data/` folder in the project, then save these two files in it. In my test I copied them from my own `data/` folder, so I did not test the download steps. If a downloaded file has a different name, rename it to match.
 
 | File | Where to get it | Save it as |
 |---|---|---|
-| Kaggle "Phishing Site URLs" | Kaggle (page not checked) | `data/phishing_site_urls.csv` |
-| Tranco list, ID 262W9 | tranco-list.eu (not checked) | `data/tranco_262W9.csv` |
-
-Create the `data/` folder first.
+| Kaggle "Phishing Site URLs" | https://www.kaggle.com/datasets/taruntiwarihp/phishing-site-urls | `data/phishing_site_urls.csv` |
+| Tranco list, ID 262W9 | https://tranco-list.eu (look up list ID 262W9) | `data/tranco_262W9.csv` |
 
 **3. Run, in this order**
 
@@ -240,8 +238,9 @@ PYTHONHASHSEED=0 .venv/bin/python notebooks/evaluate.py --model models_v2/gradie
 **4. What you should see**
 
 - The report says: recall 0.8617 at threshold 0.7399, target false-alarm rate 0.0365, precision 0.8660, F1 0.8639, 2,151 false alarms, AUC 0.9745.
-- The saved reference is 0.8617. The difference is 0.
-- The SHA-256 of my retrained 4a model and recipe is the same as the one in `results/final_system_config.json`, so I did not see a refusal. The demo and the final-run script check that hash. A retrained model that is not identical makes them refuse to run (not tested with a different model).
+- The saved reference is 0.8617, so the difference is 0.
+- In my test, the retrained 4a model and recipe had exactly the same SHA-256 as the ones saved in `results/final_system_config.json`. That was on the same computer with the same package versions, so a different setup may give a different model.
+- The demo and the final-run script check that hash and refuse to run on a model that isn't identical. `demo/check_demo.py` tests the demo's refusal with a wrong hash in a temporary copy of the config. I did not retrain a different model to see it happen.
 - My report lacks the bare-domain tables and its Tranco counts differ, because I skipped the bare-domain files.
 
 **5. The demo**
@@ -250,13 +249,13 @@ PYTHONHASHSEED=0 .venv/bin/python notebooks/evaluate.py --model models_v2/gradie
 PYTHONHASHSEED=0 .venv/bin/python demo/app.py
 ```
 
-Open http://127.0.0.1:8000. In the clone it started and printed "Listening on http://127.0.0.1:8000 (this computer only)". A request for the page returned HTTP 200. A made-up link gave "unsure", score 0.805. I stopped it afterwards and the port was closed. `demo/check_demo.py` passed 63 of 63 in the clone.
+Open http://127.0.0.1:8000. In my test it started and printed "Listening on http://127.0.0.1:8000 (this computer only)". A request for the page returned HTTP 200. A made-up link scored 0.805 and the page answered "unsure", because that score is close to the alert level. I stopped the demo afterwards and the port was closed. `demo/check_demo.py` passed 63 of 63 checks.
 
 **6. What I did not reproduce**
 
 - The bare-domain files (`build_bare_sets.py` and the phishing-domains list).
 - The locked evaluation set.
-- Model 8b, and so `notebooks/check_final_eval.py`, which stops at the hash gate with a missing file.
+- Model 8b, and so `notebooks/check_final_eval.py`, which stops at the hash check with a missing file.
 - The poisoning, backdoor and transfer experiments.
 - The guard, rules and "unsure" experiments.
 
