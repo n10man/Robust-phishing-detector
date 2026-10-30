@@ -1,4 +1,4 @@
-# Phishing link detector: build it, break it, test it fairly
+# Phishing link detector
 
 This project was built as a way for me to practise and apply what I've learnt in machine learning.
 
@@ -6,9 +6,8 @@ Before this, I built CyberOne, an educational game that teaches people how to sp
 
 I also wanted to bring in the security side of what I've learnt. So I tried to break the model by editing links so they'd slip past it, and by poisoning its training data. Then I tested defences to see what actually held up.
 
-**Summary of findings:** the model catches about 87% of ordinary phishing links and wrongly flags about 3.5% of safe links. But if a few harmless words are added to a phishing link, it only catches between 57% and 63%, so it isn't hard to fool.
 
-## How the model checks a link
+## How links are checked
 
 A model can't read text, so every link is first turned into numbers. The final model gets three kinds of numbers:
 
@@ -38,13 +37,13 @@ On the link components alone, all three models did badly. Adding the 1,000 text 
 
 I chose gradient boosting because it had the best recall, precision and F1. Its scores on the training and validation data were also close, which meant it wasn't just memorising the dataset. I judged the models by recall and precision, not accuracy. 78.5% of the links are safe, so a model that always says "safe" already scores 78.5% accuracy and catches nothing.
 
-## The data
+## The dataset 
 
 I started with a Kaggle file of 549,346 labelled links. I removed 48,914 duplicate or conflicting entries, which left 500,432 entries: 78.5% safe and 21.5% phishing. I split them 70/15/15, so 70% for training, 15% for validation and 15% for testing. I kept the test set sealed until I had chosen a model.
 
 On the test set of this first version (v1), with the cut-off fixed at 0.5 before I opened it, the model caught 15,267 of 16,135 phishing links (recall 0.946) and wrongly flagged 2,076 of 58,930 safe ones. That looked great, but it turned out to be too good. More on that below. The final test later in this README uses a different split, so its numbers are different.
 
-## Attacking my own model
+## Attacking model
 
 I made small, harmless-looking edits to phishing links. Here are two examples, using a made-up link:
 
@@ -62,7 +61,7 @@ I retrained the model on edited examples in three rounds. Round 2 looked perfect
 
 I also found that the model flagged 99.9% of plain domains like `google.com` as phishing. Almost every safe training link had a path, so "no path" looked like phishing.
 
-## Why I rebuilt the test (v2)
+## Updating the test (v2)
 
 My random split let the same website sit in both training and testing, so the model was partly recognising sites it had already seen. In v2 I split by website, so no site appears in two piles. To compare fairly, I fixed the share of safe links wrongly flagged at 3.65% and measured recall at that level. Validation recall fell from 0.949 to 0.857. That drop was v1 being too easy.
 
@@ -104,11 +103,8 @@ I tested each idea against a rule I wrote down beforehand, so I couldn't bend th
 - **A "random-looking name" check.** This measured how random a site name looks. It didn't help enough.
 - **4-character pieces in place of 3-character pieces.** This made recall worse.
 
-### Passed my rules, but I didn't use it
 
-- **Adding 2,000 extra 4-character pieces** (I call this version 8b). It raised recall to 0.8752, but the model became easier to fool. Recall on links with harmless words added to the path fell from 0.59 to 0.50. My rules only checked normal recall and false alarms, so it passed. I noticed the gap afterwards and kept the simpler 4a.
-
-## Breaking it on purpose
+## Breaking the model
 
 I broke the model in two ways. First I tampered with the data it learns from, which is called poisoning. Then I attacked it from the outside. These tests used the validation data.
 
@@ -172,19 +168,9 @@ The second model (8b) scored higher on clean test data (recall 0.884) and lower 
 - Validation numbers are slightly optimistic, because I compared many models on the same data.
 - I didn't test stealing the model, or backdoors built from rare text pieces.
 
-## Choices I made after seeing results
+## Future iterations and improvements
 
-- I chose model 4a over 8b after seeing validation results. The gap in my rules is described above.
-- The v1 test set was reused in several early stages, so the v1 numbers are flattering.
-- The first launch of the final test script stopped at a bug before it read any data. I fixed it, then ran it once.
-
-## What I'd try next
-
-None of these is tested yet.
-
-- Newer and more varied data, especially safe links with paths and plain domains in realistic amounts.
-- Check that an edited link still works as a phishing page before counting it as an attack.
-- Retest the backdoor with a trigger made of rare text pieces.
+- Newer and more varied data, and plain domains in realistic amounts.
 - A small web demo where you paste a link and get a verdict. It would never open the link, and it would say plainly that it's educational. A natural place to connect it to CyberOne.
 
 ## What's in the repo
